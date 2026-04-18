@@ -1,0 +1,239 @@
+# HomeEase Backend
+
+Django + MySQL REST API backend for the **HomeEase** home-services marketplace.
+
+---
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Django 5 + Django REST Framework |
+| Database | MySQL 8+ |
+| Auth | JWT via `djangorestframework-simplejwt` |
+| CORS | `django-cors-headers` |
+
+---
+
+## Project Structure
+
+```
+homeease2/
+├── manage.py
+├── requirements.txt
+├── .env.example
+├── homeease2/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── apps/
+    ├── accounts/       Custom User (customer/provider/admin), JWT auth, Notifications
+    ├── providers/      ProviderProfile, Reviews, availability toggle
+    ├── bookings/       Full booking lifecycle + customer/provider views
+    └── admin_panel/    Admin-only stats, approve/reject, all data views
+```
+
+---
+
+## Quick Start
+
+### 1. Prerequisites
+- Python 3.11+
+- MySQL 8+
+
+### 2. Install
+
+```bash
+cd homeease2
+python -m venv venv
+source venv/bin/activate       # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 3. Configure `.env`
+
+```bash
+cp .env.example .env
+# Edit .env — set DB_PASSWORD to your MySQL root password
+```
+
+### 4. Create MySQL Database
+
+```sql
+CREATE DATABASE homeease_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 5. Migrate + Seed
+
+```bash
+python manage.py migrate
+python manage.py seed_data
+```
+
+Seed creates:
+- **Admin**: `admin@homeease.in` / `admin123`
+- **8 providers** (matching frontend demo data): `rajesh@homeease.in` / `provider123`
+- **2 customers**: `priya@example.com` / `customer123`
+
+### 6. Run the Server
+
+```bash
+python manage.py runserver
+```
+
+Server starts at `http://localhost:8000`
+
+---
+
+## Opening the Frontend
+
+Open `Home_ease_connected.html` directly in Chrome/Edge (double-click it).
+
+The file has `API = 'http://localhost:8000/api/v1'` at the top — change this if your server runs on a different port.
+
+---
+
+## Full API Reference
+
+> Base URL: `http://localhost:8000/api/v1`
+> Protected routes require: `Authorization: Bearer <access_token>`
+
+---
+
+### Auth  `/auth/`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/register/customer/` | Public | Register customer |
+| POST | `/auth/login/` | Public | Login all roles → returns JWT |
+| POST | `/auth/logout/` | ✓ | Blacklist refresh token |
+| POST | `/auth/token/refresh/` | Public | Refresh access token |
+| GET | `/auth/profile/` | ✓ | Get own profile |
+| PATCH | `/auth/profile/` | ✓ | Update name, phone, city, area, state |
+| POST | `/auth/change-password/` | ✓ | Change password |
+| GET | `/auth/notifications/` | ✓ | List notifications (latest 30) |
+| POST | `/auth/notifications/read/` | ✓ | Mark all as read |
+| GET | `/auth/notifications/unread-count/` | ✓ | Get unread count |
+
+**Login response:**
+```json
+{
+  "message": "Login successful.",
+  "user": { "id": 1, "name": "Priya Patel", "role": "customer", "email": "...", ... },
+  "access": "<jwt_access_token>",
+  "refresh": "<jwt_refresh_token>"
+}
+```
+
+---
+
+### Providers  `/providers/`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/providers/register/` | Public | Provider applies (status=pending) |
+| GET | `/providers/` | Public | List approved providers |
+| GET | `/providers/<id>/` | Public | Provider detail + reviews |
+| GET | `/providers/me/` | Provider ✓ | My profile |
+| PATCH | `/providers/me/` | Provider ✓ | Update working_hours, description |
+| POST | `/providers/me/availability/` | Provider ✓ | Toggle availability |
+| GET | `/providers/<id>/reviews/` | Public | Reviews for a provider |
+| POST | `/providers/<id>/reviews/submit/` | Customer ✓ | Submit review |
+
+**List providers query params:**
+```
+GET /providers/?search=rajesh&skill=Plumber&city=Ahmedabad&available=true&sort=rating
+sort options: rating (default) | experience
+```
+
+**Toggle availability:**
+```json
+{ "is_available": true }
+```
+
+**Submit review:**
+```json
+{ "rating": 5, "comment": "Excellent work!", "booking_id": 42 }
+```
+
+---
+
+### Bookings  `/bookings/`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/bookings/` | Customer ✓ | Create booking request |
+| GET | `/bookings/mine/?tab=active` | Customer ✓ | My active bookings |
+| GET | `/bookings/mine/?tab=history` | Customer ✓ | My past bookings |
+| GET | `/bookings/requests/?tab=active` | Provider ✓ | Incoming requests |
+| GET | `/bookings/requests/?tab=history` | Provider ✓ | Past requests |
+| GET | `/bookings/provider-stats/` | Provider ✓ | pending/accepted/completed counts |
+| GET | `/bookings/<id>/` | ✓ | Single booking detail |
+| POST | `/bookings/<id>/cancel/` | Customer ✓ | Cancel (pending or accepted) |
+| POST | `/bookings/<id>/accept/` | Provider ✓ | Accept (pending only) |
+| POST | `/bookings/<id>/decline/` | Provider ✓ | Decline (pending only) |
+| POST | `/bookings/<id>/complete/` | Provider ✓ | Mark complete (accepted only) |
+
+**Create booking:**
+```json
+{
+  "provider_profile_id": 3,
+  "description": "Kitchen pipe leak under the sink",
+  "date": "2026-04-15",
+  "time": "10:00",
+  "customer_address": "B-12, Navrangpura, Ahmedabad"
+}
+```
+
+**Status lifecycle:**
+```
+Customer:  pending  → cancelled
+           accepted → cancelled
+
+Provider:  pending  → accepted | declined
+           accepted → completed
+```
+
+---
+
+### Admin Panel  `/admin/`
+
+> All endpoints require `role=admin` JWT token.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/stats/` | Dashboard: counts + recent registrations |
+| GET | `/admin/providers/` | All approved providers |
+| GET | `/admin/providers/pending/` | Pending applications |
+| POST | `/admin/providers/<id>/approve/` | Approve provider |
+| POST | `/admin/providers/<id>/reject/` | Reject provider |
+| GET | `/admin/customers/` | All customers |
+| POST | `/admin/users/<id>/toggle/` | Activate / deactivate user |
+| GET | `/admin/bookings/` | All bookings (filter: `?status=pending`) |
+
+---
+
+## Notification Types
+
+Notifications are created automatically on booking events:
+
+| Event | Recipient | Type |
+|-------|-----------|------|
+| Customer creates booking | Provider | orange |
+| Customer creates booking | Customer | green |
+| Provider accepts | Customer | green |
+| Provider declines | Customer | orange |
+| Provider marks complete | Customer | green |
+| Customer cancels | Provider | red |
+| Provider approved | Provider | green |
+| Customer reviews | Provider | green |
+
+---
+
+## Roles & Permissions
+
+| Role | Capabilities |
+|------|-------------|
+| **customer** | Register, browse + book providers, manage own bookings, leave reviews, notifications |
+| **provider** | Login (after approval), accept/decline/complete bookings, toggle availability, view ratings |
+| **admin** | Approve/reject providers, view all users/bookings, stats dashboard |

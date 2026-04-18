@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HomeEase — Trusted Home Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg:#f4f6fb; --card:#ffffff; --primary:#1a56db; --primary-dark:#1044b2;
+  --primary-light:#e8f0fe; --accent:#0ea5e9; --green:#10b981; --orange:#f59e0b;
+  --red:#ef4444; --muted:#64748b; --border:#e2e8f0; --text:#0f172a;
+  --radius:14px;
+  --shadow:0 4px 20px rgba(15,23,42,0.08);
+  --shadow-lg:0 12px 40px rgba(15,23,42,0.14);
+  --fh:'Syne',sans-serif;
+  --fb:'DM Sans',sans-serif;
+}
+[data-theme="dark"] {
+  --bg:#0f172a; --card:#1e293b; --primary:#3b82f6; --primary-dark:#2563eb;
+  --primary-light:#1e3a5f; --muted:#94a3b8; --border:#334155; --text:#f1f5f9;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--fb); background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s,color .3s; }
+input,select,textarea,button { font-family:var(--fb); }
+button { cursor:pointer; }
+a { text-decoration:none; color:inherit; }
+.hidden { display:none !important; }
+
+/* ===== BADGES ===== */
+.bdg { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.bdg-green  { background:#d1fae5; color:#065f46; }
+.bdg-orange { background:#fef3c7; color:#92400e; }
+.bdg-blue   { background:#dbeafe; color:#1e40af; }
+.bdg-red    { background:#fee2e2; color:#991b1b; }
+
+/* ===== BUTTONS ===== */
+.btn      { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 20px; border-radius:10px; border:none; font-size:14px; font-weight:600; transition:all .2s; white-space:nowrap; }
+.btn-prim { background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(26,86,219,.3); }
+.btn-prim:hover { background:var(--primary-dark); transform:translateY(-1px); }
+.btn-sec  { background:var(--primary-light); color:var(--primary); }
+.btn-sec:hover { background:#d1e0fc; }
+.btn-outl { background:transparent; color:var(--primary); border:1.5px solid var(--primary); }
+.btn-outl:hover { background:var(--primary-light); }
+.btn-dang { background:#fee2e2; color:#991b1b; }
+.btn-dang:hover { background:#fecaca; }
+.btn-ghost { background:none; border:none; color:var(--muted); font-size:13px; padding:6px 10px; }
+.btn-ghost:hover { color:var(--text); }
+.btn-succ { background:var(--green); color:#fff; }
+.btn-succ:hover { background:#059669; }
+.btn-warn { background:var(--orange); color:#fff; }
+.btn-warn:hover { background:#d97706; }
+.btn-sm   { padding:6px 14px; font-size:12px; }
+.btn-lg   { padding:13px 28px; font-size:15px; }
+.btn-full { width:100%; }
+
+/* ===== FORMS ===== */
+.fgrp { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+.fgrp label { font-size:13px; font-weight:600; color:var(--text); }
+.fgrp input, .fgrp select, .fgrp textarea {
+  width:100%; padding:10px 14px; border:1.5px solid var(--border);
+  border-radius:10px; font-size:14px; color:var(--text);
+  background:var(--card); outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.fgrp input:focus, .fgrp select:focus, .fgrp textarea:focus {
+  border-color:var(--primary); box-shadow:0 0 0 3px rgba(26,86,219,.1);
+}
+.fgrp textarea { resize:vertical; min-height:80px; }
+.frow { display:flex; gap:12px; }
+.frow .fgrp { flex:1; }
+
+/* ===== ALERTS ===== */
+.alrt { padding:12px 16px; border-radius:10px; font-size:14px; margin-bottom:14px; }
+.alrt-err  { background:#fee2e2; color:#991b1b; }
+.alrt-ok   { background:#d1fae5; color:#065f46; }
+.alrt-info { background:#dbeafe; color:#1e40af; }
+.alrt-warn { background:#fef3c7; color:#92400e; }
+
+/* ===== CARD ===== */
+.card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; }
+
+/* ===== PAGE SYSTEM ===== */
+.page { display:none; min-height:100vh; }
+.page.active { display:block; }
+#page-landing.active          { display:flex; }
+#page-login.active            { display:flex; }
+#page-admin-login.active      { display:flex; }
+#page-cust-register.active    { display:flex; }
+#page-prov-register.active    { display:flex; }
+#page-forgot-pw.active        { display:flex; }
+#page-prov-pending.active     { display:flex; }
+#page-admin-dash.active       { display:flex; }
+
+/* ===== LANDING ===== */
+#page-landing {
+  align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);
+  color:#fff; position:relative; overflow:hidden;
+}
+.land-dec { position:absolute; border-radius:50%; filter:blur(80px); opacity:.15; pointer-events:none; }
+.land-dec.d1 { width:500px; height:500px; background:var(--primary); top:-150px; right:-100px; }
+.land-dec.d2 { width:400px; height:400px; background:var(--accent); bottom:-100px; left:-100px; }
+.land-body { text-align:center; max-width:520px; padding:40px 24px; position:relative; z-index:1; }
+.land-logo { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:32px; }
+.land-mark { width:56px; height:56px; border-radius:14px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-weight:800; font-size:20px; color:#fff; }
+.land-name { font-family:var(--fh); font-size:28px; font-weight:800; }
+.land-name em { font-style:normal; color:var(--accent); }
+.land-tag  { font-family:var(--fh); font-size:36px; font-weight:800; line-height:1.15; margin-bottom:14px; }
+.land-tag em { font-style:normal; color:var(--accent); }
+.land-desc { color:rgba(255,255,255,.65); font-size:15px; line-height:1.7; margin-bottom:36px; }
+.land-hint { color:rgba(255,255,255,.5); font-size:13px; margin-bottom:14px; }
+.role-grp  { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:20px; }
+.role-btn  { background:rgba(255,255,255,.1); color:#fff; border:1.5px solid rgba(255,255,255,.2); padding:14px 28px; border-radius:12px; font-size:14px; font-weight:600; transition:all .2s; min-width:140px; }
+.role-btn:hover { background:rgba(255,255,255,.18); transform:translateY(-2px); }
+.role-btn.cust:hover { border-color:#34d399; color:#34d399; }
+.role-btn.prov:hover { border-color:var(--accent); color:var(--accent); }
+.land-si { color:rgba(255,255,255,.45); font-size:13px; }
+.land-si a { color:rgba(255,255,255,.75); cursor:pointer; text-decoration:underline; font-weight:600; }
+.land-si a:hover { color:#fff; }
+
+/* ===== AUTH SPLIT LAYOUT ===== */
+.auth-split { display:flex; width:100%; min-height:100vh; }
+.auth-left {
+  width:400px; flex-shrink:0;
+  background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 55%,#0f172a 100%);
+  display:flex; flex-direction:column; justify-content:center;
+  padding:56px 44px; position:relative; overflow:hidden;
+}
+.auth-left::before { content:''; position:absolute; width:320px; height:320px; border-radius:50%; background:rgba(14,165,233,.1); top:-80px; right:-80px; pointer-events:none; }
+.auth-left::after  { content:''; position:absolute; width:260px; height:260px; border-radius:50%; background:rgba(26,86,219,.08); bottom:-60px; left:-60px; pointer-events:none; }
+.al-logo  { display:flex; align-items:center; gap:12px; margin-bottom:44px; position:relative; z-index:1; }
+.al-logo .al-mark { width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-family:var(--fh); font-weight:800; font-size:16px; color:#fff; flex-shrink:0; }
+.al-logo span { font-family:var(--fh); font-size:22px; font-weight:800; color:#fff; }
+.al-logo span em { font-style:normal; color:var(--accent); }
+.al-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; margin-bottom:18px; position:relative; z-index:1; }
+.al-head  { font-family:var(--fh); font-size:30px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:14px; position:relative; z-index:1; }
+.al-desc  { color:rgba(255,255,255,.55); font-size:14px; line-height:1.7; position:relative; z-index:1; margin-bottom:32px; }
+.al-feats { display:flex; flex-direction:column; gap:12px; position:relative; z-index:1; }
+.al-feat  { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,.8); font-size:13px; }
+.al-feat .ficon { width:34px; height:34px; border-radius:9px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.auth-right { flex:1; background:var(--bg); overflow-y:auto; display:flex; align-items:flex-start; justify-content:center; }
+.auth-form  { width:100%; max-width:480px; padding:48px 40px; }
+.auth-back  { display:inline-flex; align-items:center; gap:8px; background:none; border:none; color:var(--muted); font-size:13px; font-weight:600; cursor:pointer; padding:0; margin-bottom:32px; }
+.auth-back:hover { color:var(--text); }
+.auth-title { font-family:var(--fh); font-size:26px; font-weight:800; margin-bottom:6px; }
+.auth-sub   { color:var(--muted); font-size:14px; margin-bottom:28px; }
+.auth-foot  { margin-top:20px; text-align:center; color:var(--muted); font-size:13px; }
+.auth-foot a { color:var(--primary); font-weight:600; cursor:pointer; }
+.auth-foot a:hover { text-decoration:underline; }
+
+/* OTP inputs */
+.otp-row { display:flex; gap:10px; justify-content:center; margin:16px 0; }
+.otp-row input { width:50px; height:54px; text-align:center; font-size:22px; font-weight:700; border:2px solid var(--border); border-radius:12px; background:var(--card); color:var(--text); outline:none; }
+.otp-row input:focus { border-color:var(--primary); }
+
+@media (max-width:820px) {
+  .auth-left { display:none; }
+  .auth-form { padding:32px 24px; }
+  .frow { flex-direction:column; gap:0; }
+}
+
+/* ===== APP HEADER ===== */
+.app-hdr {
+  background:var(--card); border-bottom:1px solid var(--border);
+  padding:0 24px; height:64px; display:flex; align-items:center;
+  position:sticky; top:0; z-index:100; gap:16px;
+  box-shadow:0 1px 8px rgba(15,23,42,.06);
+}
+.hdr-logo { display:flex; align-items:center; gap:10px; font-family:var(--fh); font-weight:800; font-size:18px; flex-shrink:0; }
+.hdr-logo em { font-style:normal; color:var(--accent); }
+.logo-sm { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; font-family:var(--fh); }
+
+.hdr-acts { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.hdr-btn { width:38px; height:38px; border-radius:10px; border:none; background:var(--bg); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:16px; transition:all .2s; position:relative; }
+.hdr-btn:hover { background:var(--primary-light); color:var(--primary); }
+.notif-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--red); border:2px solid var(--card); }
+.hdr-av { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; font-family:var(--fh); }
+
+/* ===== DROPDOWN ===== */
+.dropdown { position:relative; }
+.dd-menu { position:absolute; right:0; top:calc(100% + 8px); background:var(--card); border-radius:12px; box-shadow:var(--shadow-lg); border:1px solid var(--border); min-width:200px; overflow:hidden; z-index:300; display:none; }
+.dd-menu.open { display:block; }
+.dd-item { display:flex; align-items:center; gap:10px; padding:11px 16px; font-size:14px; cursor:pointer; transition:background .15s; }
+.dd-item:hover { background:var(--bg); }
+.dd-item.danger { color:var(--red); }
+.dd-sep { height:1px; background:var(--border); margin:4px 0; }
+
+/* ===== CUSTOMER HOME ===== */
+.page-main { max-width:1200px; margin:0 auto; padding:24px 20px; }
+.hero { background:linear-gradient(135deg,#1a56db,#0ea5e9); border-radius:20px; padding:32px; color:#fff; margin-bottom:28px; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.07); right:-80px; top:-80px; }
+.hero::after  { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.07); right:80px; bottom:-60px; }
+.hero h1 { font-family:var(--fh); font-size:26px; font-weight:800; margin-bottom:6px; position:relative; z-index:1; }
+.hero p  { opacity:.85; font-size:14px; position:relative; z-index:1; }
+.hero-srch { display:flex; gap:10px; margin-top:20px; position:relative; z-index:1; }
+.hero-srch input { flex:1; padding:12px 16px; border-radius:12px; border:none; font-size:14px; background:rgba(255,255,255,.18); color:#fff; outline:none; }
+.hero-srch input::placeholder { color:rgba(255,255,255,.7); }
+.hero-srch input:focus { background:rgba(255,255,255,.28); }
+.hero-srch button { background:#fff; color:var(--primary); border:none; padding:12px 22px; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer; flex-shrink:0; }
+.hero-srch button:hover { background:#f0f6ff; }
+
+.srch-item { padding:12px 16px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:background .15s; }
+.srch-item:hover { background:var(--bg); }
+.sec-title { font-family:var(--fh); font-size:18px; font-weight:700; margin-bottom:16px; }
+.cat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; margin-bottom:32px; }
+.cat-card { background:var(--card); border-radius:14px; padding:18px 12px; text-align:center; cursor:pointer; border:1.5px solid transparent; transition:all .2s; box-shadow:var(--shadow); }
+.cat-card:hover { border-color:var(--primary); transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.cat-icon  { font-size:28px; margin-bottom:8px; }
+.cat-name  { font-size:13px; font-weight:600; }
+.cat-count { font-size:11px; color:var(--muted); margin-top:2px; }
+.prov-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.prov-card { background:var(--card); border-radius:16px; padding:18px; box-shadow:var(--shadow); border:1.5px solid transparent; transition:all .2s; cursor:pointer; }
+.prov-card:hover { border-color:var(--primary); transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.pc-top  { display:flex; align-items:center; gap:14px; }
+.pc-av   { width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:#fff; font-family:var(--fh); flex-shrink:0; }
+.pc-info h4   { font-size:15px; font-weight:700; margin-bottom:2px; }
+.pc-skill, .pc-area { font-size:12px; color:var(--muted); }
+.pc-stats { display:flex; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+.pc-stat  { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:4px; }
+.pc-acts  { display:flex; gap:8px; margin-top:14px; }
+.avail-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:3px 10px; border-radius:20px; font-weight:600; }
+.avail-chip.avail { background:#d1fae5; color:#065f46; }
+.avail-chip.busy  { background:#fee2e2; color:#991b1b; }
+.star { color:#f59e0b; }
+.text-muted { color:var(--muted); font-size:13px; }
+
+/* ===== MODALS ===== */
+.modal-ov { position:fixed; inset:0; background:rgba(10,20,40,.5); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+.modal-ov.open { display:flex; }
+.modal-box { background:var(--card); border-radius:20px; box-shadow:var(--shadow-lg); width:100%; max-width:540px; max-height:90vh; overflow-y:auto; }
+.modal-hdr { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.modal-hdr h3 { font-family:var(--fh); font-size:18px; font-weight:700; flex:1; }
+.modal-close { width:32px; height:32px; border-radius:8px; border:none; background:var(--bg); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; }
+.modal-close:hover { background:#fee2e2; color:var(--red); }
+.modal-body { padding:20px 24px; }
+.modal-foot { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+.wp-head { display:flex; gap:16px; margin-bottom:20px; }
+.wp-av   { width:72px; height:72px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; color:#fff; font-family:var(--fh); flex-shrink:0; }
+.wp-meta h3 { font-size:20px; font-weight:700; }
+.wp-meta p  { color:var(--muted); font-size:14px; margin-top:2px; }
+.wp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.wp-item .wl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+.wp-item { background:var(--bg); border-radius:10px; padding:10px 14px; }
+.wp-item .wv { font-size:14px; font-weight:600; }
+
+/* ===== CHAT ===== */
+.chat-wrap { display:flex; flex-direction:column; height:440px; }
+.chat-msgs { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.chat-msg { max-width:75%; }
+.chat-msg.sent { align-self:flex-end; }
+.chat-msg.recv { align-self:flex-start; }
+.chat-bub { padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.5; }
+.chat-msg.sent .chat-bub { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
+.chat-msg.recv .chat-bub { background:var(--bg); border-bottom-left-radius:4px; }
+.chat-time { font-size:11px; color:var(--muted); margin-top:3px; }
+.chat-msg.sent .chat-time { text-align:right; }
+.chat-in-row { padding:14px 16px; border-top:1px solid var(--border); display:flex; gap:10px; }
+.chat-in-row input { flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:12px; font-size:14px; outline:none; background:var(--bg); color:var(--text); }
+.chat-in-row input:focus { border-color:var(--primary); background:var(--card); }
+
+/* ===== ADMIN LAYOUT ===== */
+.admin-wrap { display:flex; width:100%; min-height:100vh; }
+.admin-sb { width:240px; background:#0f172a; color:#fff; padding:20px 0; display:flex; flex-direction:column; flex-shrink:0; }
+.sb-logo { padding:0 20px 20px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; font-family:var(--fh); font-weight:700; font-size:16px; }
+.sb-nav { padding:16px 0; flex:1; }
+.sb-item { display:flex; align-items:center; gap:12px; padding:11px 20px; font-size:14px; font-weight:500; color:rgba(255,255,255,.65); cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
+.sb-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+.sb-item.active { background:rgba(59,130,246,.15); color:#fff; border-left-color:#3b82f6; }
+.sb-icon { font-size:17px; width:22px; }
+.admin-cnt { flex:1; background:var(--bg); overflow-y:auto; }
+.admin-inner { padding:28px; max-width:1000px; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
+.stat-card { background:var(--card); border-radius:14px; padding:20px; box-shadow:var(--shadow); }
+.stat-card .sl { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.stat-card .sv { font-size:32px; font-weight:800; font-family:var(--fh); }
+.stat-card .ss { font-size:12px; color:var(--muted); margin-top:4px; }
+.data-tbl { width:100%; border-collapse:collapse; }
+.data-tbl th { padding:10px 14px; text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); border-bottom:1.5px solid var(--border); }
+.data-tbl td { padding:12px 14px; font-size:14px; border-bottom:1px solid var(--border); }
+.data-tbl tbody tr:hover { background:var(--bg); }
+
+/* ===== PROVIDER DASHBOARD ===== */
+.prov-dash { max-width:900px; margin:0 auto; padding:24px 20px; }
+.req-card { background:var(--card); border-radius:14px; padding:16px; box-shadow:var(--shadow); border-left:4px solid var(--primary); margin-bottom:12px; }
+.req-card.pend { border-left-color:var(--orange); }
+.req-card.acc  { border-left-color:var(--green); }
+.req-card.comp { border-left-color:var(--muted); }
+
+/* ===== SETTINGS ===== */
+.settings-wrap { max-width:600px; margin:0 auto; padding:24px 20px; }
+.settings-sec { background:var(--card); border-radius:14px; padding:20px; box-shadow:var(--shadow); margin-bottom:16px; }
+.settings-sec h3 { font-size:15px; font-weight:700; margin-bottom:14px; }
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+.setting-row:last-child { border-bottom:none; }
+.tog { width:44px; height:24px; background:#e2e8f0; border-radius:12px; position:relative; cursor:pointer; transition:background .2s; border:none; flex-shrink:0; }
+.tog.on { background:var(--primary); }
+.tog::after { content:''; position:absolute; width:20px; height:20px; border-radius:10px; background:#fff; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.15); }
+.tog.on::after { left:22px; }
+
+/* ===== MY ACCOUNT / HISTORY ===== */
+.account-wrap { max-width:900px; margin:0 auto; padding:24px 20px; }
+.account-tabs { display:flex; gap:8px; margin-bottom:24px; border-bottom:2px solid var(--border); padding-bottom:0; }
+.acc-tab { padding:10px 20px; font-size:14px; font-weight:600; background:none; border:none; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .2s; }
+.acc-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+.booking-card { background:var(--card); border-radius:14px; padding:16px; box-shadow:var(--shadow); border-left:4px solid var(--primary); margin-bottom:12px; }
+.booking-card.pending-book { border-left-color:var(--orange); }
+.booking-card.confirmed-book { border-left-color:var(--green); }
+.booking-card.cancelled-book { border-left-color:var(--red); }
+.booking-card.completed-book { border-left-color:var(--muted); }
+.bk-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.bk-title { font-size:15px; font-weight:700; }
+.bk-meta { font-size:13px; color:var(--muted); margin-top:4px; }
+.bk-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+
+/* ===== FEEDBACK / STARS ===== */
+.star-rating { display:flex; gap:4px; }
+.star-btn { font-size:24px; background:none; border:none; cursor:pointer; color:#e2e8f0; transition:color .15s; line-height:1; }
+.star-btn.active, .star-btn:hover { color:#f59e0b; }
+
+/* ===== BOOKING MODAL ===== */
+.bk-modal { max-width:480px; }
+
+/* ===== NOTIFICATIONS ===== */
+.notif-item { padding:12px; background:var(--bg); border-radius:10px; border-left:3px solid var(--primary); margin-bottom:8px; }
+.notif-item.green { border-left-color:var(--green); }
+.notif-item.orange { border-left-color:var(--orange); }
+.notif-item.red { border-left-color:var(--red); }
+.notif-title { font-size:14px; font-weight:600; }
+.notif-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+
+@media (max-width:768px) {
+  .admin-sb { display:none; }
+  .hero h1 { font-size:20px; }
+  .prov-grid { grid-template-columns:1fr; }
+  .land-tag { font-size:28px; }
+  .cat-grid { grid-template-columns:repeat(3,1fr); }
+  .wp-grid { grid-template-columns:1fr; }
+}
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.fade-in { animation:fadeIn .3s ease; }
+
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background:#334155; }
+</style>
+</head>
+<body>
+
+<!-- ===================== LANDING ===================== -->
+<div id="page-landing" class="page active">
+  <div class="land-dec d1"></div>
+  <div class="land-dec d2"></div>
+  <div class="land-body fade-in">
+    <div class="land-logo">
+      <div class="land-mark">HE</div>
+      <div class="land-name">Home<em>Ease</em></div>
+    </div>
+    <h1 class="land-tag">Trusted home services,<br><em>at your doorstep</em></h1>
+    <p class="land-desc">Plumbers, electricians, carpenters and more — book in seconds, chat directly, and get the job done right.</p>
+    <p class="land-hint">Choose how you want to continue</p>
+    <div class="role-grp">
+      <button class="role-btn cust" onclick="showPage('page-cust-register')">👤 Customer</button>
+      <button class="role-btn prov" onclick="showPage('page-prov-register')">🔧 Service Provider</button>
+    </div>
+    <p class="land-si">Already have an account? <a onclick="showPage('page-login')">Sign in here</a></p>
+  </div>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="page-login" class="page">
+  <div class="auth-split">
+    <div class="auth-left">
+      <div class="al-logo"><div class="al-mark">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge">🔑 Sign In</div>
+      <h2 class="al-head">Welcome<br><em style="color:var(--accent)">back!</em></h2>
+      <p class="al-desc">Log in to your account and manage home services with ease.</p>
+      <div class="al-feats">
+        <div class="al-feat"><div class="ficon">🔒</div>Your data is safe and secure</div>
+        <div class="al-feat"><div class="ficon">⚡</div>Instant access after login</div>
+        <div class="al-feat"><div class="ficon">💬</div>Chat with providers anytime</div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <button class="auth-back" onclick="showPage('page-landing')">← Back to Home</button>
+        <h2 class="auth-title">Sign In</h2>
+        <p class="auth-sub">Enter your email and password to continue</p>
+        <div id="login-error" class="alrt alrt-err hidden"></div>
+        <div class="fgrp"><label>Email Address</label><input type="email" id="login-email" placeholder="you@example.com" /></div>
+        <div class="fgrp"><label>Password</label><input type="password" id="login-password" placeholder="Enter your password" /></div>
+        <div style="text-align:right;margin-bottom:20px">
+          <a style="font-size:13px;color:var(--primary);cursor:pointer;font-weight:600" onclick="showPage('page-forgot-pw')">Forgot password?</a>
+        </div>
+        <button class="btn btn-prim btn-full btn-lg" onclick="handleLogin()">Sign In</button>
+        <div class="auth-foot" style="margin-top:24px">Don't have an account? <a onclick="showPage('page-landing')">Choose your role</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN LOGIN ===================== -->
+<div id="page-admin-login" class="page">
+  <div class="auth-split">
+    <div class="auth-left" style="background:linear-gradient(160deg,#0f172a 0%,#1a1040 55%,#0f172a 100%)">
+      <div class="al-logo"><div class="al-mark" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge" style="background:rgba(124,58,237,.2);border-color:rgba(167,139,250,.3)">🛡️ Admin Portal</div>
+      <h2 class="al-head">Admin<br><em style="color:#a78bfa">Control Panel</em></h2>
+      <p class="al-desc">Manage service providers, verify identities, and oversee the entire HomeEase platform.</p>
+      <div class="al-feats">
+        <div class="al-feat"><div class="ficon" style="background:rgba(124,58,237,.2)">✅</div>Approve service providers</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(124,58,237,.2)">👥</div>Manage all users</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(124,58,237,.2)">📊</div>View platform analytics</div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <button class="auth-back" onclick="showPage('page-landing')">← Back to Home</button>
+        <h2 class="auth-title">Admin Sign In</h2>
+        <p class="auth-sub">Enter your admin credentials to access the dashboard</p>
+        <div id="admin-login-error" class="alrt alrt-err hidden"></div>
+        <div class="alrt alrt-info" style="font-size:13px">Demo — Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>admin123</strong></div>
+        <div class="fgrp"><label>Admin Username</label><input type="text" id="admin-username" placeholder="Enter admin username" /></div>
+        <div class="fgrp"><label>Password</label><input type="password" id="admin-password" placeholder="Enter admin password" /></div>
+        <button class="btn btn-prim btn-full btn-lg" onclick="handleAdminLogin()">Sign In as Admin</button>
+        <div class="auth-foot">Not admin? <a onclick="showPage('page-landing')">Go back</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOMER REGISTER ===================== -->
+<div id="page-cust-register" class="page">
+  <div class="auth-split">
+    <div class="auth-left" style="background:linear-gradient(160deg,#0f172a 0%,#064e3b 55%,#0f172a 100%)">
+      <div class="al-logo"><div class="al-mark" style="background:linear-gradient(135deg,#10b981,#34d399)">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge" style="background:rgba(16,185,129,.15);border-color:rgba(52,211,153,.3)">👤 New Customer</div>
+      <h2 class="al-head">Join<br><em style="color:#34d399">HomeEase</em><br>Today</h2>
+      <p class="al-desc">Book trusted home services in minutes. Register once, access everything.</p>
+      <div class="al-feats">
+        <div class="al-feat"><div class="ficon" style="background:rgba(16,185,129,.2)">🔧</div>9+ service categories</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(16,185,129,.2)">📞</div>Direct call and chat</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(16,185,129,.2)">⭐</div>Verified professionals only</div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <button class="auth-back" onclick="showPage('page-landing')">← Back to Home</button>
+        <h2 class="auth-title">Create Customer Account</h2>
+        <p class="auth-sub">Fill in your details to get started</p>
+        <div id="creg-error" class="alrt alrt-err hidden"></div>
+        <div class="frow">
+          <div class="fgrp"><label>Full Name *</label><input type="text" id="creg-name" placeholder="Your full name" /></div>
+          <div class="fgrp"><label>Mobile Number *</label><input type="tel" id="creg-phone" placeholder="+91 XXXXX XXXXX" /></div>
+        </div>
+        <div class="fgrp"><label>Email Address *</label><input type="email" id="creg-email" placeholder="you@example.com" /></div>
+        <div class="frow">
+          <div class="fgrp"><label>City *</label><input type="text" id="creg-city" placeholder="e.g. Ahmedabad" /></div>
+          <div class="fgrp"><label>Area / Locality *</label><input type="text" id="creg-area" placeholder="e.g. Navrangpura" /></div>
+        </div>
+        <div class="fgrp">
+          <label>State *</label>
+          <select id="creg-state">
+            <option value="">Select State</option>
+            <option>Gujarat</option><option>Maharashtra</option><option>Rajasthan</option>
+            <option>Madhya Pradesh</option><option>Delhi</option><option>Karnataka</option>
+            <option>Tamil Nadu</option><option>Uttar Pradesh</option><option>West Bengal</option>
+          </select>
+        </div>
+        <div class="frow">
+          <div class="fgrp"><label>Password *</label><input type="password" id="creg-pass" placeholder="Min 8 characters" /></div>
+          <div class="fgrp"><label>Confirm Password *</label><input type="password" id="creg-confirm" placeholder="Repeat password" /></div>
+        </div>
+        <button class="btn btn-prim btn-full btn-lg" onclick="handleCustRegister()">Create Account</button>
+        <div class="auth-foot">Already have an account? <a onclick="showPage('page-login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PROVIDER REGISTER ===================== -->
+<div id="page-prov-register" class="page">
+  <div class="auth-split">
+    <div class="auth-left" style="background:linear-gradient(160deg,#0f172a 0%,#0c2a47 55%,#0f172a 100%)">
+      <div class="al-logo"><div class="al-mark" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4)">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge" style="background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.3)">🔧 Service Provider</div>
+      <h2 class="al-head">Grow<br>Your<br><em style="color:#38bdf8">Business</em></h2>
+      <p class="al-desc">Register, get verified, and start receiving job requests from customers near you.</p>
+      <div class="al-feats">
+        <div class="al-feat"><div class="ficon" style="background:rgba(14,165,233,.2)">📬</div>Receive job requests</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(14,165,233,.2)">🏅</div>Build your reputation</div>
+        <div class="al-feat"><div class="ficon" style="background:rgba(14,165,233,.2)">💰</div>Earn on your schedule</div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <button class="auth-back" onclick="showPage('page-landing')">← Back to Home</button>
+        <h2 class="auth-title">Provider Registration</h2>
+        <p class="auth-sub">Submit your application — admin will review and approve</p>
+        <div id="preg-error" class="alrt alrt-err hidden"></div>
+        <div class="alrt alrt-info" style="font-size:13px;margin-bottom:16px">Once approved by admin you can log in and accept service requests.</div>
+        <div class="frow">
+          <div class="fgrp"><label>Full Name *</label><input type="text" id="preg-name" placeholder="Your full name" /></div>
+          <div class="fgrp"><label>Mobile Number *</label><input type="tel" id="preg-phone" placeholder="+91 XXXXX" /></div>
+        </div>
+        <div class="fgrp"><label>Email Address *</label><input type="email" id="preg-email" placeholder="you@example.com" /></div>
+        <div class="frow">
+          <div class="fgrp">
+            <label>Gender *</label>
+            <select id="preg-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
+          </div>
+          <div class="fgrp">
+            <label>Work Type *</label>
+            <select id="preg-worktype">
+              <option value="">Select service</option>
+              <option>Plumber</option><option>Electrician</option><option>Carpenter</option>
+              <option>Painter</option><option>Cleaner</option><option>AC Technician</option>
+              <option>Pest Control</option><option>CCTV Installation</option><option>Gardener</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fgrp"><label>City *</label><input type="text" id="preg-city" placeholder="e.g. Surat" /></div>
+          <div class="fgrp"><label>Area / Locality *</label><input type="text" id="preg-area" placeholder="e.g. Adajan" /></div>
+        </div>
+        <div class="frow">
+          <div class="fgrp">
+            <label>State *</label>
+            <select id="preg-state">
+              <option value="">Select</option>
+              <option>Gujarat</option><option>Maharashtra</option><option>Rajasthan</option>
+              <option>Madhya Pradesh</option><option>Delhi</option><option>Karnataka</option>
+              <option>Tamil Nadu</option><option>Uttar Pradesh</option><option>West Bengal</option>
+            </select>
+          </div>
+          <div class="fgrp"><label>Years of Experience *</label><input type="number" id="preg-exp" placeholder="e.g. 5" min="0" max="50" /></div>
+        </div>
+        <div class="fgrp"><label>Available Work Hours *</label><input type="text" id="preg-hours" placeholder="e.g. Mon-Sat 9:00 AM – 6:00 PM" /></div>
+        <div class="fgrp"><label>About You / Description *</label><textarea id="preg-desc" placeholder="Describe your skills, past work, certifications etc."></textarea></div>
+        <div class="fgrp"><label>Aadhaar Number (for verification) *</label><input type="text" id="preg-aadhaar" placeholder="XXXX XXXX XXXX" maxlength="14" /></div>
+        <div class="frow">
+          <div class="fgrp"><label>Set Password *</label><input type="password" id="preg-pass" placeholder="Min 8 characters" /></div>
+          <div class="fgrp"><label>Confirm Password *</label><input type="password" id="preg-confirm" placeholder="Repeat password" /></div>
+        </div>
+        <button class="btn btn-prim btn-full btn-lg" onclick="handleProvRegister()">Submit Application</button>
+        <div class="auth-foot">Already registered? <a onclick="showPage('page-login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FORGOT PASSWORD ===================== -->
+<div id="page-forgot-pw" class="page">
+  <div class="auth-split">
+    <div class="auth-left">
+      <div class="al-logo"><div class="al-mark">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge">🔐 Reset Password</div>
+      <h2 class="al-head">Forgot<br>Your<br><em style="color:var(--accent)">Password?</em></h2>
+      <p class="al-desc">Enter your mobile number and we will send you a one-time code to reset access.</p>
+      <div class="al-feats">
+        <div class="al-feat"><div class="ficon">📱</div>OTP sent to your mobile</div>
+        <div class="al-feat"><div class="ficon">⏱️</div>OTP valid for 10 minutes</div>
+        <div class="al-feat"><div class="ficon">🔒</div>Secure password update</div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <button class="auth-back" onclick="showPage('page-login')">← Back to Sign In</button>
+        <div id="fp-step1">
+          <h2 class="auth-title">Reset Password</h2>
+          <p class="auth-sub">Enter your registered mobile number</p>
+          <div class="fgrp"><label>Mobile Number</label><input type="tel" id="fp-phone" placeholder="+91 XXXXX XXXXX" /></div>
+          <button class="btn btn-prim btn-full btn-lg" onclick="sendOTP()">Send OTP</button>
+        </div>
+        <div id="fp-step2" class="hidden">
+          <h2 class="auth-title">Enter OTP</h2>
+          <p class="auth-sub">Enter the 6-digit code sent to your number</p>
+          <div class="alrt alrt-info" style="font-size:13px">Demo OTP: <strong>123456</strong></div>
+          <div class="otp-row">
+            <input type="text" maxlength="1" class="otp-in" /><input type="text" maxlength="1" class="otp-in" />
+            <input type="text" maxlength="1" class="otp-in" /><input type="text" maxlength="1" class="otp-in" />
+            <input type="text" maxlength="1" class="otp-in" /><input type="text" maxlength="1" class="otp-in" />
+          </div>
+          <button class="btn btn-prim btn-full btn-lg" onclick="verifyOTP()">Verify OTP</button>
+          <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">Didn't receive? <a style="color:var(--primary);cursor:pointer;font-weight:600" onclick="sendOTP()">Resend OTP</a></p>
+        </div>
+        <div id="fp-step3" class="hidden">
+          <h2 class="auth-title">Set New Password</h2>
+          <p class="auth-sub">Choose a strong new password</p>
+          <div id="fp-success" class="alrt alrt-ok hidden"></div>
+          <div class="fgrp"><label>New Password</label><input type="password" id="fp-newpass" placeholder="Min 8 characters" /></div>
+          <div class="fgrp"><label>Confirm New Password</label><input type="password" id="fp-confirm" placeholder="Repeat new password" /></div>
+          <button class="btn btn-prim btn-full btn-lg" onclick="updatePassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PROVIDER PENDING ===================== -->
+<div id="page-prov-pending" class="page">
+  <div class="auth-split">
+    <div class="auth-left" style="background:linear-gradient(160deg,#0f172a 0%,#1a2a0c 55%,#0f172a 100%)">
+      <div class="al-logo"><div class="al-mark" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">HE</div><span>Home<em>Ease</em></span></div>
+      <div class="al-badge" style="background:rgba(245,158,11,.15);border-color:rgba(251,191,36,.3)">⏳ Under Review</div>
+      <h2 class="al-head">Almost<br><em style="color:#fbbf24">There!</em></h2>
+      <p class="al-desc">Your application is in queue. Our team carefully verifies each provider to ensure quality.</p>
+    </div>
+    <div class="auth-right" style="align-items:center">
+      <div style="text-align:center;max-width:380px;padding:40px 24px">
+        <div style="font-size:72px;margin-bottom:24px">⏳</div>
+        <h2 style="font-family:var(--fh);font-size:24px;font-weight:800;margin-bottom:12px">Application Submitted!</h2>
+        <p style="color:var(--muted);font-size:15px;line-height:1.7;margin-bottom:24px">Your application is under review. Once approved by admin, you can log in and start accepting service requests.</p>
+        <div class="alrt alrt-ok" style="margin-bottom:20px">✅ Your details have been saved successfully.</div>
+        <button class="btn btn-prim btn-lg btn-full" onclick="showPage('page-landing')">← Back to Home</button>
+        <p style="margin-top:16px;font-size:13px;color:var(--muted)">Already approved? <a style="color:var(--primary);cursor:pointer;font-weight:600" onclick="showPage('page-login')">Sign in here</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOMER HOME ===================== -->
+<div id="page-cust-home" class="page">
+  <header class="app-hdr">
+    <div class="hdr-logo"><div class="logo-sm">HE</div>Home<em>Ease</em></div>
+    <div class="hdr-acts">
+      <button class="hdr-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button class="hdr-btn" id="cust-notif-btn" onclick="openModal('notif-modal')" title="Notifications">🔔<span class="notif-dot" id="cust-notif-dot"></span></button>
+      <div class="dropdown">
+        <button class="hdr-av" id="user-av" onclick="toggleDD('user-dd')">CU</button>
+        <div class="dd-menu" id="user-dd">
+          <div class="dd-item" id="dd-username" style="font-weight:600;pointer-events:none">Customer</div>
+          <div class="dd-sep"></div>
+          <div class="dd-item" onclick="showAccountPage()">👤 My Account</div>
+          <div class="dd-item" onclick="openSettings()">⚙️ Settings</div>
+          <div class="dd-item danger" onclick="logout()">🚪 Log Out</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="page-main">
+    <div class="hero">
+      <h1 id="home-welcome">Good day! 👋</h1>
+      <p>What service do you need today?</p>
+      <div class="hero-srch" style="position:relative">
+        <input type="text" id="hero-search" placeholder="Search by name, service, city..." oninput="handleSearch(this.value)" autocomplete="off" />
+        <button onclick="handleSearch(document.getElementById('hero-search').value)">Search</button>
+      </div>
+    </div>
+    <div id="browse-cat-section">
+      <div class="sec-title" id="browse-cat-title">Browse by Category</div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="sec-title" style="margin-bottom:0" id="prov-section-title">Available Service Providers</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sec btn-sm" onclick="resetSearch()">🏠 All</button>
+        <button class="btn btn-sec btn-sm" onclick="sortProviders('rating')">⭐ Top Rated</button>
+        <button class="btn btn-sec btn-sm" onclick="sortProviders('experience')">📅 Experienced</button>
+      </div>
+    </div>
+    <div class="prov-grid" id="prov-grid"></div>
+  </div>
+</div>
+
+<!-- ===================== MY ACCOUNT (CUSTOMER) ===================== -->
+<div id="page-account" class="page">
+  <header class="app-hdr">
+    <button class="btn btn-ghost" onclick="showPage(STATE.role === 'customer' ? 'page-cust-home' : 'page-prov-dash')">← Back</button>
+    <div style="flex:1;text-align:center;font-family:var(--fh);font-size:18px;font-weight:700">My Account</div>
+  </header>
+  <div class="account-wrap">
+    <div class="card" style="margin-bottom:20px;display:flex;align-items:center;gap:20px">
+      <div id="acc-avatar" style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;font-family:var(--fh)">U</div>
+      <div>
+        <h2 id="acc-name" style="font-family:var(--fh);font-size:18px;font-weight:700">Name</h2>
+        <p id="acc-email" style="color:var(--muted);font-size:14px">email</p>
+        <p id="acc-role-label" style="font-size:13px;margin-top:2px;color:var(--muted)">Role</p>
+      </div>
+    </div>
+    <div class="account-tabs" id="acc-tabs">
+      <button class="acc-tab active" onclick="switchAccTab('bookings')" id="tab-bookings">📋 My Bookings</button>
+      <button class="acc-tab" onclick="switchAccTab('history')" id="tab-history">📜 History</button>
+    </div>
+    <div id="acc-bookings"></div>
+    <div id="acc-history" class="hidden"></div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN DASHBOARD ===================== -->
+<div id="page-admin-dash" class="page">
+  <div class="admin-wrap">
+    <aside class="admin-sb">
+      <div class="sb-logo"><div class="logo-sm" style="background:linear-gradient(135deg,#3b82f6,#0ea5e9)">HE</div><span>HomeEase</span></div>
+      <nav class="sb-nav">
+        <div class="sb-item active" id="sb-ov" onclick="adminNav('ov')"><span class="sb-icon">📊</span>Overview</div>
+        <div class="sb-item" id="sb-pr" onclick="adminNav('pr')"><span class="sb-icon">🔧</span>Service Providers</div>
+        <div class="sb-item" id="sb-cu" onclick="adminNav('cu')"><span class="sb-icon">👥</span>Customers</div>
+        <div class="sb-item" id="sb-pe" onclick="adminNav('pe')"><span class="sb-icon">⏳</span>Pending Approvals</div>
+        <div class="sb-item" id="sb-bk" onclick="adminNav('bk')"><span class="sb-icon">📋</span>All Bookings</div>
+      </nav>
+      <div style="padding:20px;border-top:1px solid rgba(255,255,255,.1)">
+        <div class="sb-item" onclick="logout()" style="color:rgba(239,68,68,.8);border-left:none"><span class="sb-icon">🚪</span>Log Out</div>
+      </div>
+    </aside>
+    <main class="admin-cnt">
+      <div class="admin-inner">
+        <div id="adm-ov">
+          <h2 style="font-family:var(--fh);font-size:22px;margin-bottom:20px">Dashboard Overview</h2>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="sl">Total Customers</div><div class="sv" id="stat-cu">0</div><div class="ss">Registered users</div></div>
+            <div class="stat-card"><div class="sl">Active Providers</div><div class="sv" id="stat-pr">0</div><div class="ss">Approved and active</div></div>
+            <div class="stat-card"><div class="sl">Pending Approvals</div><div class="sv" id="stat-pe" style="color:var(--orange)">0</div><div class="ss">Awaiting review</div></div>
+            <div class="stat-card"><div class="sl">Total Bookings</div><div class="sv" id="stat-bk">0</div><div class="ss">All time</div></div>
+          </div>
+          <div class="card"><h3 style="font-size:15px;font-weight:700;margin-bottom:16px">Recent Registrations</h3>
+            <table class="data-tbl"><thead><tr><th>Name</th><th>Type</th><th>Date</th><th>Status</th></tr></thead><tbody id="adm-rec-body"></tbody></table>
+          </div>
+        </div>
+        <div id="adm-pr" class="hidden">
+          <h2 style="font-family:var(--fh);font-size:22px;margin-bottom:20px">Service Providers</h2>
+          <div class="card"><table class="data-tbl"><thead><tr><th>Name</th><th>Service</th><th>City</th><th>Experience</th><th>Rating</th><th>Status</th></tr></thead><tbody id="adm-pr-body"></tbody></table></div>
+        </div>
+        <div id="adm-cu" class="hidden">
+          <h2 style="font-family:var(--fh);font-size:22px;margin-bottom:20px">Customers</h2>
+          <div class="card"><table class="data-tbl"><thead><tr><th>Name</th><th>Email</th><th>City</th><th>Joined</th></tr></thead><tbody id="adm-cu-body"></tbody></table></div>
+        </div>
+        <div id="adm-pe" class="hidden">
+          <h2 style="font-family:var(--fh);font-size:22px;margin-bottom:20px">Pending Approvals</h2>
+          <div id="adm-pe-list"></div>
+        </div>
+        <div id="adm-bk" class="hidden">
+          <h2 style="font-family:var(--fh);font-size:22px;margin-bottom:20px">All Bookings</h2>
+          <div class="card"><table class="data-tbl"><thead><tr><th>Customer</th><th>Provider</th><th>Service</th><th>Date</th><th>Status</th></tr></thead><tbody id="adm-bk-body"></tbody></table></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===================== PROVIDER DASHBOARD ===================== -->
+<div id="page-prov-dash" class="page">
+  <header class="app-hdr">
+    <div class="hdr-logo"><div class="logo-sm">HE</div>Home<em>Ease</em></div>
+    <div class="hdr-acts" style="margin-left:auto">
+      <button class="hdr-btn" id="prov-theme-btn" onclick="toggleTheme()">🌙</button>
+      <button class="hdr-btn" id="prov-notif-btn" onclick="openModal('notif-modal')" title="Notifications">🔔<span class="notif-dot" id="prov-notif-dot"></span></button>
+      <div class="dropdown">
+        <button class="hdr-av" id="prov-av" style="background:linear-gradient(135deg,#10b981,#0ea5e9)" onclick="toggleDD('prov-dd')">SP</button>
+        <div class="dd-menu" id="prov-dd">
+          <div class="dd-item" id="prov-dd-name" style="font-weight:600;pointer-events:none">Provider</div>
+          <div class="dd-sep"></div>
+          <div class="dd-item" onclick="showAccountPage()">👤 My Account</div>
+          <div class="dd-item" onclick="openSettings()">⚙️ Settings</div>
+          <div class="dd-item danger" onclick="logout()">🚪 Log Out</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="prov-dash">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;background:var(--card);border-radius:16px;padding:20px;box-shadow:var(--shadow)">
+      <div id="pdash-av" class="pc-av" style="width:64px;height:64px;font-size:22px;background:linear-gradient(135deg,#10b981,#0ea5e9)">SP</div>
+      <div>
+        <h2 style="font-family:var(--fh);font-size:18px;font-weight:700" id="pdash-name">Provider</h2>
+        <p style="color:var(--muted);font-size:13px" id="pdash-info">Service · City</p>
+        <span class="avail-chip avail" id="pdash-status">● Available</span>
+      </div>
+      <button class="btn btn-sec btn-sm" style="margin-left:auto" onclick="toggleAvailability()">Toggle Availability</button>
+    </div>
+    <div class="stats-grid" style="margin-bottom:24px">
+      <div class="stat-card"><div class="sl">Pending Requests</div><div class="sv" id="prov-stat-req" style="color:var(--orange)">0</div></div>
+      <div class="stat-card"><div class="sl">Accepted</div><div class="sv" id="prov-stat-acc" style="color:var(--green)">0</div></div>
+      <div class="stat-card"><div class="sl">Completed</div><div class="sv" id="prov-stat-done">0</div></div>
+      <div class="stat-card"><div class="sl">Rating</div><div class="sv" id="prov-stat-rat" style="color:var(--orange)">— ⭐</div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-title" style="margin-bottom:0">Service Requests</div>
+    </div>
+    <div id="prov-requests-list"></div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div id="page-settings" class="page">
+  <header class="app-hdr">
+    <button class="btn btn-ghost" onclick="closeSettings()">← Back</button>
+    <div style="flex:1;text-align:center;font-family:var(--fh);font-size:18px;font-weight:700">Settings</div>
+  </header>
+  <div class="settings-wrap">
+    <div class="settings-sec">
+      <h3>Appearance</h3>
+      <div class="setting-row">
+        <div><div style="font-size:14px;font-weight:600">Dark Mode</div><div class="text-muted">Switch between light and dark theme</div></div>
+        <button class="tog" id="dm-toggle" onclick="toggleTheme()"></button>
+      </div>
+    </div>
+    <div class="settings-sec">
+      <h3>Account</h3>
+      <div class="setting-row">
+        <div><div style="font-size:14px;font-weight:600" id="set-uname">Your Account</div><div class="text-muted" id="set-email">email</div></div>
+      </div>
+      <div class="setting-row">
+        <div style="font-size:14px;font-weight:600">Change Password</div>
+        <button class="btn btn-outl btn-sm" onclick="showPage('page-forgot-pw')">Update</button>
+      </div>
+      <div class="setting-row">
+        <div><div style="font-size:14px;font-weight:600">Update Address</div><div class="text-muted" id="set-address">—</div></div>
+        <button class="btn btn-outl btn-sm" onclick="openModal('update-address-modal')">Edit</button>
+      </div>
+      <div class="setting-row">
+        <div><div style="font-size:14px;font-weight:600">Update Contact</div><div class="text-muted" id="set-phone">—</div></div>
+        <button class="btn btn-outl btn-sm" onclick="openModal('update-contact-modal')">Edit</button>
+      </div>
+    </div>
+    <div class="settings-sec">
+      <h3>Support</h3>
+      <div class="setting-row">
+        <div style="font-size:14px;font-weight:600">Contact Support</div>
+        <button class="btn btn-sec btn-sm" onclick="alert('Email: support@homeease.in')">Contact</button>
+      </div>
+    </div>
+    <div class="settings-sec">
+      <button class="btn btn-dang btn-full" onclick="logout()">🚪 Log Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Worker Profile Modal -->
+<div class="modal-ov" id="worker-modal">
+  <div class="modal-box">
+    <div class="modal-hdr"><h3>Provider Profile</h3><button class="modal-close" onclick="closeModal('worker-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="wp-head">
+        <div class="wp-av" id="wm-av">RK</div>
+        <div class="wp-meta">
+          <h3 id="wm-name">Name</h3><p id="wm-skill">Skill</p>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <span class="star">★</span><span id="wm-rating" style="font-weight:600">4.8</span>
+            <span class="avail-chip avail" id="wm-status">Available</span>
+          </div>
+        </div>
+      </div>
+      <div class="wp-grid">
+        <div class="wp-item"><div class="wl">Location</div><div class="wv" id="wm-loc">City</div></div>
+        <div class="wp-item"><div class="wl">Experience</div><div class="wv" id="wm-exp">5 years</div></div>
+        <div class="wp-item"><div class="wl">Available Hours</div><div class="wv" id="wm-hrs">9AM–6PM</div></div>
+        <div class="wp-item"><div class="wl">Service</div><div class="wv" id="wm-svc">Plumber</div></div>
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">About</div>
+        <p style="font-size:14px;line-height:1.6" id="wm-desc">Description</p>
+      </div>
+      <!-- Feedback section on profile -->
+      <div id="wm-feedback-section" style="background:var(--bg);border-radius:12px;padding:14px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Customer Reviews</div>
+        <div id="wm-reviews-list"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sec" onclick="chatFromProfile()">💬 Chat</button>
+      <button class="btn btn-outl" onclick="callProvider()">📞 Call</button>
+      <button class="btn btn-prim" onclick="openBookingModal()">📅 Book Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-ov" id="booking-modal">
+  <div class="modal-box bk-modal">
+    <div class="modal-hdr"><h3>Book Service</h3><button class="modal-close" onclick="closeModal('booking-modal')">✕</button></div>
+    <div class="modal-body">
+      <div id="bk-prov-info" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px;background:var(--bg);border-radius:12px">
+        <div id="bk-av" style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:var(--fh)">R</div>
+        <div><div id="bk-name" style="font-weight:700">Provider</div><div id="bk-skill" style="font-size:13px;color:var(--muted)">Service</div></div>
+      </div>
+      <div id="booking-error" class="alrt alrt-err hidden"></div>
+      <div class="fgrp"><label>Service Description *</label><textarea id="bk-desc" placeholder="Describe what you need done (e.g. leaky pipe in bathroom)" rows="3"></textarea></div>
+      <div class="frow">
+        <div class="fgrp"><label>Preferred Date *</label><input type="date" id="bk-date" /></div>
+        <div class="fgrp"><label>Preferred Time *</label><input type="time" id="bk-time" /></div>
+      </div>
+      <div class="fgrp"><label>Your Address *</label><input type="text" id="bk-address" placeholder="Full address for the service" /></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('booking-modal')">Cancel</button>
+      <button class="btn btn-prim" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div class="modal-ov" id="chat-modal">
+  <div class="modal-box">
+    <div class="modal-hdr"><h3 id="chat-title">Chat</h3><button class="modal-close" onclick="closeModal('chat-modal')">✕</button></div>
+    <div class="chat-wrap">
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-in-row">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()" />
+        <button class="btn btn-prim" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Modal -->
+<div class="modal-ov" id="notif-modal">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-hdr"><h3>Notifications</h3><button class="modal-close" onclick="closeModal('notif-modal')">✕</button></div>
+    <div class="modal-body" id="notif-body">
+      <p style="text-align:center;color:var(--muted);padding:20px">No notifications yet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-ov" id="feedback-modal">
+  <div class="modal-box" style="max-width:460px">
+    <div class="modal-hdr"><h3>Rate & Review</h3><button class="modal-close" onclick="closeModal('feedback-modal')">✕</button></div>
+    <div class="modal-body">
+      <div id="fb-prov-info" style="text-align:center;margin-bottom:20px">
+        <div id="fb-av" style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;font-family:var(--fh);margin:0 auto 10px">R</div>
+        <div id="fb-name" style="font-weight:700;font-size:16px">Provider</div>
+        <div id="fb-skill" style="font-size:13px;color:var(--muted)">Service</div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:10px">How was the service?</div>
+        <div class="star-rating" id="star-rating" style="justify-content:center">
+          <button class="star-btn" data-val="1" onclick="setRating(1)">★</button>
+          <button class="star-btn" data-val="2" onclick="setRating(2)">★</button>
+          <button class="star-btn" data-val="3" onclick="setRating(3)">★</button>
+          <button class="star-btn" data-val="4" onclick="setRating(4)">★</button>
+          <button class="star-btn" data-val="5" onclick="setRating(5)">★</button>
+        </div>
+        <div id="fb-rating-val" style="font-size:13px;color:var(--muted);margin-top:6px">Tap to rate</div>
+      </div>
+      <div class="fgrp"><label>Your Review (optional)</label><textarea id="fb-review" placeholder="Share your experience..." rows="3"></textarea></div>
+      <div id="fb-error" class="alrt alrt-err hidden"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('feedback-modal')">Skip</button>
+      <button class="btn btn-prim" onclick="submitFeedback()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Address Modal -->
+<div class="modal-ov" id="update-address-modal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-hdr"><h3>Update Address</h3><button class="modal-close" onclick="closeModal('update-address-modal')">✕</button></div>
+    <div class="modal-body">
+      <div id="upd-addr-ok" class="alrt alrt-ok hidden"></div>
+      <div class="fgrp"><label>Area / Locality</label><input type="text" id="upd-area" placeholder="e.g. Navrangpura" /></div>
+      <div class="fgrp"><label>City</label><input type="text" id="upd-city" placeholder="e.g. Ahmedabad" /></div>
+      <div class="fgrp">
+        <label>State</label>
+        <select id="upd-state">
+          <option value="">Select State</option>
+          <option>Gujarat</option><option>Maharashtra</option><option>Rajasthan</option>
+          <option>Madhya Pradesh</option><option>Delhi</option><option>Karnataka</option>
+          <option>Tamil Nadu</option><option>Uttar Pradesh</option><option>West Bengal</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('update-address-modal')">Cancel</button>
+      <button class="btn btn-prim" onclick="saveAddress()">Save Address</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Contact Modal -->
+<div class="modal-ov" id="update-contact-modal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-hdr"><h3>Update Contact</h3><button class="modal-close" onclick="closeModal('update-contact-modal')">✕</button></div>
+    <div class="modal-body">
+      <div id="upd-contact-ok" class="alrt alrt-ok hidden"></div>
+      <div class="fgrp"><label>Mobile Number</label><input type="tel" id="upd-phone" placeholder="+91 XXXXX XXXXX" /></div>
+      <div class="fgrp"><label>Email Address</label><input type="email" id="upd-email-val" placeholder="you@example.com" /></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('update-contact-modal')">Cancel</button>
+      <button class="btn btn-prim" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// CONFIG — point this at your running Django server
+// =====================================================================
+var API = 'http://localhost:8000/api/v1';
+
+// =====================================================================
+// TOKEN HELPERS
+// =====================================================================
+var Auth = {
+  getAccess:  function() { return localStorage.getItem('he_access'); },
+  getRefresh: function() { return localStorage.getItem('he_refresh'); },
+  save: function(access, refresh) {
+    localStorage.setItem('he_access', access);
+    if (refresh) localStorage.setItem('he_refresh', refresh);
+  },
+  clear: function() {
+    localStorage.removeItem('he_access');
+    localStorage.removeItem('he_refresh');
+  },
+  headers: function() {
+    return { 'Content-Type': 'application/json',
+             'Authorization': 'Bearer ' + this.getAccess() };
+  }
+};
+
+// =====================================================================
+// API FETCH WRAPPER — auto-refreshes expired token once
+// =====================================================================
+async function apiFetch(method, path, body, isPublic) {
+  var opts = {
+    method: method,
+    headers: isPublic ? { 'Content-Type': 'application/json' } : Auth.headers()
+  };
+  if (body) opts.body = JSON.stringify(body);
+  var res = await fetch(API + path, opts);
+  if (res.status === 401 && !isPublic) {
+    var ok = await tryRefresh();
+    if (ok) {
+      opts.headers = Auth.headers();
+      res = await fetch(API + path, opts);
+    } else { logout(); return null; }
+  }
+  return res;
+}
+
+async function tryRefresh() {
+  var rt = Auth.getRefresh();
+  if (!rt) return false;
+  try {
+    var res = await fetch(API + '/auth/token/refresh/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh: rt })
+    });
+    if (!res.ok) return false;
+    var d = await res.json();
+    Auth.save(d.access, null);
+    return true;
+  } catch(e) { return false; }
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function gid(id) { return document.getElementById(id); }
+function gval(id) { var el = gid(id); return el ? el.value.trim() : ''; }
+function showErr(el, msg) {
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function() { el.classList.add('hidden'); }, 6000);
+}
+function htmlEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function makeInitials(name) {
+  return String(name).split(' ').map(function(w){ return w[0] || ''; }).slice(0,2).join('').toUpperCase();
+}
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+function nowStr() { return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); }
+
+// =====================================================================
+// DATABASE — replaced by Django API (localStorage removed)
+// DB object kept as no-op so legacy calls don't crash during transition
+// =====================================================================
+var DB = {
+  load: function(key) {
+    var defaults = { bookings:[], feedback:[], notifications:{} };
+    return defaults[key] !== undefined ? defaults[key] : [];
+  },
+  save: function() {}
+};
+
+// =====================================================================
+// APP STATE
+// =====================================================================
+var STATE = { user:null, role:null, dark:false, returnPage:'page-landing' };
+var _providerCache = [];   // cached from GET /providers/
+var currentWorker = null;
+var provAvailable = true;
+var currentFeedbackBookingId  = null;
+var currentFeedbackProviderId = null;
+var currentFeedbackRating     = 0;
+
+// =====================================================================
+// STATIC DEMO DATA
+// =====================================================================
+var DEMO_PROVIDERS = [
+  { id:1, name:'Rajesh Kumar',  skill:'Plumber',           city:'Ahmedabad', area:'Navrangpura', state:'Gujarat', exp:10, rating:4.7, hours:'Mon-Sat 8AM-6PM',  desc:'10 years experience in home plumbing, pipe fitting, leak fixes, and bathroom installations.',        available:true,  colors:['#1a56db','#3b82f6'] },
+  { id:2, name:'Sunita Devi',   skill:'Electrician',        city:'Surat',     area:'Adajan',      state:'Gujarat', exp:7,  rating:4.9, hours:'Mon-Sat 9AM-5PM',  desc:'Specialized in home wiring, switchboard repair, inverter installation, and electrical safety.',      available:true,  colors:['#7c3aed','#a78bfa'] },
+  { id:3, name:'Aman Singh',    skill:'Carpenter',          city:'Vadodara',  area:'Alkapuri',    state:'Gujarat', exp:8,  rating:4.5, hours:'Mon-Sun 9AM-7PM',  desc:'Furniture making, door/window repair, custom woodwork and modular kitchen installations.',            available:false, colors:['#d97706','#fbbf24'] },
+  { id:4, name:'Pooja Sharma',  skill:'Cleaner',            city:'Rajkot',    area:'Kalavad Road',state:'Gujarat', exp:5,  rating:4.4, hours:'Mon-Fri 8AM-4PM',  desc:'Home and office deep cleaning, post-construction cleaning, sofa and mattress cleaning.',            available:true,  colors:['#059669','#34d399'] },
+  { id:5, name:'Vikash Patel',  skill:'Painter',            city:'Bhavnagar', area:'Waghawadi',   state:'Gujarat', exp:12, rating:4.2, hours:'Mon-Sat 7AM-5PM',  desc:'Interior and exterior painting, texture painting, waterproof coating, and wall design.',            available:true,  colors:['#dc2626','#f87171'] },
+  { id:6, name:'Kavita Mehta',  skill:'AC Technician',      city:'Ahmedabad', area:'Satellite',   state:'Gujarat', exp:6,  rating:4.6, hours:'Mon-Sat 10AM-6PM', desc:'AC installation, servicing, gas refilling, and repair for all brands.',                              available:true,  colors:['#0891b2','#22d3ee'] },
+  { id:7, name:'Suresh Yadav',  skill:'Pest Control',       city:'Gandhinagar',area:'Sector 5',   state:'Gujarat', exp:9,  rating:4.3, hours:'Mon-Sat 9AM-5PM',  desc:'General pest control, termite treatment, rodent control, and annual maintenance contracts.',         available:false, colors:['#7c3aed','#c084fc'] },
+  { id:8, name:'Deepak Nair',   skill:'CCTV Installation',  city:'Surat',     area:'Vesu',        state:'Gujarat', exp:4,  rating:4.7, hours:'Mon-Sun 10AM-7PM', desc:'CCTV installation, NVR/DVR setup, access control, and video door phone installation.',              available:true,  colors:['#1a56db','#60a5fa'] }
+];
+var CATEGORIES = [
+  { name:'Plumber',           icon:'🔧' }, { name:'Electrician',     icon:'⚡' },
+  { name:'Carpenter',         icon:'🪚' }, { name:'Cleaner',         icon:'🧹' },
+  { name:'Painter',           icon:'🎨' }, { name:'AC Technician',   icon:'❄️' },
+  { name:'Pest Control',      icon:'🐛' }, { name:'CCTV Installation',icon:'📷' },
+  { name:'Gardener',          icon:'🌿' }
+];
+
+// =====================================================================
+// PAGE NAVIGATION
+// =====================================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var el = gid(id);
+  if (el) { el.classList.add('active'); window.scrollTo(0,0); }
+  closeAllDropdowns();
+}
+
+// =====================================================================
+// ADMIN LOGIN
+// =====================================================================
+function handleAdminLogin() {
+  var email    = gval('admin-username');
+  var password = gid('admin-password').value;
+  var errEl    = gid('admin-login-error');
+  if (!email || !password) { showErr(errEl, 'Please fill in all fields.'); return; }
+
+  apiFetch('POST', '/auth/login/', { email: email, password: password }, true).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) { showErr(errEl, data.error || 'Invalid credentials.'); return; }
+      if (data.user.role !== 'admin') { showErr(errEl, 'This login is for admins only.'); return; }
+      Auth.save(data.access, data.refresh);
+      STATE.user = data.user;
+      STATE.role = 'admin';
+      loadAdminDash();
+      showPage('page-admin-dash');
+    });
+  });
+}
+
+// =====================================================================
+// CUSTOMER REGISTER
+// =====================================================================
+function handleCustRegister() {
+  var errEl = gid('creg-error');
+  var body  = {
+    name:             gval('creg-name'),
+    phone:            gval('creg-phone'),
+    email:            gval('creg-email').toLowerCase(),
+    city:             gval('creg-city'),
+    area:             gval('creg-area'),
+    state:            gid('creg-state').value,
+    password:         gid('creg-pass').value,
+    confirm_password: gid('creg-confirm').value
+  };
+  if (!body.name||!body.phone||!body.email||!body.city||!body.area||!body.state||!body.password||!body.confirm_password) {
+    showErr(errEl, 'Please fill in all required fields.'); return;
+  }
+  apiFetch('POST', '/auth/register/customer/', body, true).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) {
+        var msg = Object.values(data).flat().join(' ');
+        showErr(errEl, msg || 'Registration failed.'); return;
+      }
+      Auth.save(data.access, data.refresh);
+      STATE.user = data.user;
+      STATE.role = 'customer';
+      loadCustHome();
+      showPage('page-cust-home');
+    });
+  });
+}
+
+// =====================================================================
+// PROVIDER REGISTER
+// =====================================================================
+function handleProvRegister() {
+  var errEl = gid('preg-error');
+  var body  = {
+    name:             gval('preg-name'),
+    phone:            gval('preg-phone'),
+    email:            gval('preg-email').toLowerCase(),
+    gender:           gid('preg-gender').value,
+    skill:            gid('preg-worktype').value,
+    city:             gval('preg-city'),
+    area:             gval('preg-area'),
+    state:            gid('preg-state').value,
+    experience:       parseInt(gval('preg-exp'), 10) || 0,
+    working_hours:    gval('preg-hours'),
+    description:      gval('preg-desc'),
+    aadhaar:          gval('preg-aadhaar'),
+    password:         gid('preg-pass').value,
+    confirm_password: gid('preg-confirm').value
+  };
+  var required = ['name','phone','email','gender','skill','city','area','state','working_hours','description','aadhaar','password','confirm_password'];
+  for (var i=0;i<required.length;i++){
+    if (!body[required[i]]) { showErr(errEl,'Please fill in all required fields.'); return; }
+  }
+  if (!body.experience) { showErr(errEl,'Please enter years of experience.'); return; }
+  apiFetch('POST', '/providers/register/', body, true).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) {
+        var msg = Object.values(data).flat().join(' ');
+        showErr(errEl, msg || 'Registration failed.'); return;
+      }
+      showPage('page-prov-pending');
+    });
+  });
+}
+
+// =====================================================================
+// LOGIN
+// =====================================================================
+function handleLogin() {
+  var email  = gval('login-email').toLowerCase();
+  var pass   = gid('login-password').value;
+  var errEl  = gid('login-error');
+  if (!email || !pass) { showErr(errEl, 'Please enter your email and password.'); return; }
+
+  apiFetch('POST', '/auth/login/', { email: email, password: pass }, true).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) {
+        if (data.status === 'pending') {
+          showErr(errEl, 'Your application is still pending admin approval. Please wait.');
+        } else {
+          showErr(errEl, data.error || 'Invalid email or password.');
+        }
+        return;
+      }
+      Auth.save(data.access, data.refresh);
+      STATE.user = data.user;
+      STATE.role = data.user.role;
+      if (STATE.role === 'customer') { loadCustHome(); showPage('page-cust-home'); }
+      else if (STATE.role === 'provider') { loadProvDash(); showPage('page-prov-dash'); }
+      else if (STATE.role === 'admin') { loadAdminDash(); showPage('page-admin-dash'); }
+    });
+  });
+}
+
+// =====================================================================
+// FORGOT PASSWORD
+// =====================================================================
+function sendOTP() {
+  var phone = gval('fp-phone');
+  if (phone.replace(/\D/g,'').length < 10) { alert('Please enter a valid mobile number.'); return; }
+  gid('fp-step1').classList.add('hidden');
+  gid('fp-step2').classList.remove('hidden');
+  var inputs = document.querySelectorAll('.otp-in');
+  if (inputs.length) inputs[0].focus();
+}
+
+document.addEventListener('input', function(e) {
+  if (!e.target.classList.contains('otp-in')) return;
+  var inputs = Array.from(document.querySelectorAll('.otp-in'));
+  var idx = inputs.indexOf(e.target);
+  if (e.target.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+});
+document.addEventListener('keydown', function(e) {
+  if (!e.target.classList.contains('otp-in')) return;
+  var inputs = Array.from(document.querySelectorAll('.otp-in'));
+  var idx = inputs.indexOf(e.target);
+  if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
+});
+
+function verifyOTP() {
+  var otp = '';
+  document.querySelectorAll('.otp-in').forEach(function(i) { otp += i.value; });
+  if (otp.length < 6) { alert('Please enter all 6 digits.'); return; }
+  if (otp !== '123456') { alert('Invalid OTP. Use demo OTP: 123456'); return; }
+  gid('fp-step2').classList.add('hidden');
+  gid('fp-step3').classList.remove('hidden');
+}
+
+function updatePassword() {
+  var np  = gid('fp-newpass').value;
+  var nc  = gid('fp-confirm').value;
+  var suc = gid('fp-success');
+  if (np.length < 8)  { alert('Password must be at least 8 characters.'); return; }
+  if (np !== nc)      { alert('Passwords do not match.'); return; }
+  suc.textContent = '✅ Password updated successfully! Redirecting to sign in...';
+  suc.classList.remove('hidden');
+  setTimeout(function() {
+    gid('fp-step1').classList.remove('hidden');
+    gid('fp-step2').classList.add('hidden');
+    gid('fp-step3').classList.add('hidden');
+    suc.classList.add('hidden');
+    gid('fp-phone').value = '';
+    gid('fp-newpass').value = '';
+    gid('fp-confirm').value = '';
+    document.querySelectorAll('.otp-in').forEach(function(i) { i.value = ''; });
+    showPage('page-login');
+  }, 2200);
+}
+
+// =====================================================================
+// CUSTOMER HOME
+// =====================================================================
+function loadCustHome() {
+  var u = STATE.user;
+  var hour = new Date().getHours();
+  var greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  gid('home-welcome').textContent = greet + ', ' + u.name.split(' ')[0] + '! 👋';
+  gid('user-av').textContent      = makeInitials(u.name);
+  gid('dd-username').textContent  = u.name;
+  gid('set-uname').textContent    = u.name;
+  gid('set-email').textContent    = u.email;
+  fetchAndRenderProviders('');
+  refreshNotifDot();
+}
+
+function fetchAndRenderProviders(queryString) {
+  var url = '/providers/' + (queryString ? '?' + queryString : '');
+  apiFetch('GET', url, null, true).then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(data) {
+      var list = Array.isArray(data) ? data : (data.results || []);
+      _providerCache = list;
+      renderCategories(list);
+      renderProviders(list);
+    });
+  });
+}
+
+function getAllProviders() { return _providerCache; }
+
+function renderCategories(list) {
+  var grid = gid('cat-grid');
+  list = list || _providerCache;
+  grid.innerHTML = CATEGORIES.map(function(c) {
+    var cnt = list.filter(function(p){ return p.skill === c.name; }).length;
+    return '<div class="cat-card" onclick="filterByCategory(\'' + c.name.replace(/\'/g,"\\'") + '\')">'      + '<div class="cat-icon">' + c.icon + '</div>'      + '<div class="cat-name">' + c.name + '</div>'      + '<div class="cat-count">' + cnt + ' provider' + (cnt !== 1 ? 's' : '') + '</div>'      + '</div>';
+  }).join('');
+}
+
+function renderProviders(list) {
+  var grid = gid('prov-grid');
+  if (!list || !list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No providers found.</div>';
+    return;
+  }
+  var COLORS = [['#1a56db','#3b82f6'],['#7c3aed','#a78bfa'],['#d97706','#fbbf24'],
+                ['#059669','#34d399'],['#dc2626','#f87171'],['#0891b2','#22d3ee'],
+                ['#7c3aed','#c084fc'],['#1a56db','#60a5fa']];
+  grid.innerHTML = list.map(function(w, idx) {
+    var init  = makeInitials(w.name);
+    var avail = w.is_available !== false;
+    var cols  = COLORS[idx % COLORS.length];
+    var exp   = w.exp !== undefined ? w.exp : (w.experience || 0);
+    var rat   = w.rating ? parseFloat(w.rating).toFixed(1) : 'New';
+    return '<div class="prov-card" onclick="openWorkerModal(' + w.id + ')">'      + '<div class="pc-top">'      + '<div class="pc-av" style="background:linear-gradient(135deg,' + cols[0] + ',' + cols[1] + ')">' + htmlEsc(init) + '</div>'      + '<div class="pc-info"><h4>' + htmlEsc(w.name) + '</h4>'      + '<div class="pc-skill">🔧 ' + htmlEsc(w.skill) + '</div>'      + '<div class="pc-area">📍 ' + htmlEsc((w.area ? w.area + ', ' : '') + (w.city||'')) + '</div>'      + '</div></div>'      + '<div class="pc-stats">'      + '<span class="pc-stat"><span class="star">★</span> ' + rat + '</span>'      + '<span class="pc-stat">📅 ' + exp + ' yrs</span>'      + '<span class="avail-chip ' + (avail ? 'avail' : 'busy') + '">' + (avail ? '● Available' : '● Busy') + '</span>'      + '</div>'      + '<div class="pc-acts">'      + '<button class="btn btn-prim btn-sm" onclick="event.stopPropagation();openWorkerModal(' + w.id + ')">View Profile</button>'      + '<button class="btn btn-sec btn-sm" onclick="event.stopPropagation();openChatModal(\'' + htmlEsc(w.name).replace(/\'/g,"\\'") + '\')">💬 Chat</button>'      + '</div></div>';
+  }).join('');
+}
+
+function filterByCategory(cat) {
+  var hs = gid('hero-search');
+  if (hs) hs.value = '';
+  gid('browse-cat-section').style.display = 'none';
+  gid('prov-section-title').textContent = cat + ' Providers';
+  fetchAndRenderProviders('skill=' + encodeURIComponent(cat));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleSearch(q) {
+  var catSection = gid('browse-cat-section');
+  var title = gid('prov-section-title');
+  if (!q || !q.trim()) {
+    catSection.style.display = '';
+    title.textContent = 'Available Service Providers';
+    fetchAndRenderProviders('');
+    return;
+  }
+  catSection.style.display = 'none';
+  var encoded = encodeURIComponent(q.trim());
+  title.textContent = 'Searching for "' + q.trim() + '"...';
+  apiFetch('GET', '/providers/?search=' + encoded, null, true).then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(data) {
+      var list = Array.isArray(data) ? data : (data.results || []);
+      title.textContent = list.length
+        ? 'Results for "' + q.trim() + '" (' + list.length + ' found)'
+        : 'No results found for "' + q.trim() + '"';
+      renderProviders(list);
+    });
+  });
+}
+
+function resetSearch() {
+  var hs = gid('hero-search');
+  if (hs) hs.value = '';
+  var catSection = gid('browse-cat-section');
+  if (catSection) catSection.style.display = '';
+  gid('prov-section-title').textContent = 'Available Service Providers';
+  fetchAndRenderProviders('');
+}
+
+function sortProviders(by) {
+  fetchAndRenderProviders('sort=' + by);
+}
+
+// =====================================================================
+// WORKER MODAL
+// =====================================================================
+function openWorkerModal(id) {
+  // Try cache first for instant display
+  var w = null;
+  for (var i = 0; i < _providerCache.length; i++) { if (_providerCache[i].id === id) { w = _providerCache[i]; break; } }
+  if (w) { _renderWorkerModal(w); }
+  // Always fetch fresh detail (includes reviews)
+  apiFetch('GET', '/providers/' + id + '/', null, true).then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(data) { _renderWorkerModal(data); });
+  });
+}
+
+function _renderWorkerModal(w) {
+  currentWorker = w;
+  var COLORS = [['#1a56db','#3b82f6'],['#7c3aed','#a78bfa'],['#d97706','#fbbf24'],
+                ['#059669','#34d399'],['#dc2626','#f87171'],['#0891b2','#22d3ee'],
+                ['#7c3aed','#c084fc'],['#1a56db','#60a5fa']];
+  var idx   = (w.id - 1) % COLORS.length;
+  var cols  = COLORS[idx];
+  var avail = w.is_available !== false;
+  var exp   = w.exp !== undefined ? w.exp : (w.experience || 0);
+  gid('wm-av').textContent = makeInitials(w.name);
+  gid('wm-av').style.background = 'linear-gradient(135deg,' + cols[0] + ',' + cols[1] + ')';
+  gid('wm-name').textContent   = w.name;
+  gid('wm-skill').textContent  = w.skill;
+  gid('wm-rating').textContent = w.rating ? parseFloat(w.rating).toFixed(1) : 'New';
+  gid('wm-loc').textContent    = (w.area ? w.area + ', ' : '') + (w.city || '');
+  gid('wm-exp').textContent    = exp + ' years';
+  gid('wm-hrs').textContent    = w.hours || w.working_hours || 'Contact to confirm';
+  gid('wm-svc').textContent    = w.skill;
+  gid('wm-desc').textContent   = w.desc || w.description || 'No description provided.';
+  var stEl = gid('wm-status');
+  stEl.textContent = avail ? '● Available' : '● Busy';
+  stEl.className   = 'avail-chip ' + (avail ? 'avail' : 'busy');
+  // Reviews
+  var fbList = gid('wm-reviews-list');
+  var reviews = w.reviews || [];
+  if (!reviews.length) {
+    fbList.innerHTML = '<p style="font-size:13px;color:var(--muted)">No reviews yet.</p>';
+  } else {
+    fbList.innerHTML = reviews.slice(0,3).map(function(f){
+      var stars = '';
+      for (var s = 1; s <= 5; s++) stars += '<span style="color:' + (s <= f.rating ? '#f59e0b' : '#e2e8f0') + '">★</span>';
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'        + '<span style="font-size:14px;font-weight:600">' + htmlEsc(f.customer_name || f.customerName) + '</span>'        + '<span>' + stars + '</span></div>'        + (f.comment || f.review ? '<p style="font-size:13px;color:var(--muted)">' + htmlEsc(f.comment || f.review) + '</p>' : '')        + '</div>';
+    }).join('');
+  }
+  openModal('worker-modal');
+}
+
+
+function chatFromProfile() { if (currentWorker) openChatModal(currentWorker.name); }
+function callProvider() {
+  if (!currentWorker) return;
+  var phone = (currentWorker.phone || '').replace(/\s/g, '');
+  if (!phone) {
+    alert('Phone number not available for ' + currentWorker.name + '. Please use the chat option to get in touch.');
+    return;
+  }
+  window.location.href = 'tel:' + phone;
+}
+
+// =====================================================================
+// BOOKING SYSTEM
+// =====================================================================
+function openBookingModal() {
+  if (!STATE.user || STATE.role !== 'customer') {
+    alert('Please log in as a customer to book a service.'); return;
+  }
+  if (!currentWorker) return;
+  closeModal('worker-modal');
+  var w = currentWorker;
+  var cols = w.colors || ['#1a56db','#3b82f6'];
+  gid('bk-av').textContent = makeInitials(w.name);
+  gid('bk-av').style.background = 'linear-gradient(135deg,' + cols[0] + ',' + cols[1] + ')';
+  gid('bk-name').textContent  = w.name;
+  gid('bk-skill').textContent = w.skill;
+  gid('bk-desc').value  = '';
+  gid('bk-date').value  = '';
+  gid('bk-time').value  = '';
+  gid('bk-address').value = STATE.user.area ? STATE.user.area + ', ' + STATE.user.city : '';
+  gid('booking-error').classList.add('hidden');
+  // Set min date to today
+  var today = new Date().toISOString().split('T')[0];
+  gid('bk-date').min = today;
+  openModal('booking-modal');
+}
+
+function submitBooking() {
+  var desc    = gval('bk-desc');
+  var date    = gval('bk-date');
+  var time    = gval('bk-time');
+  var address = gval('bk-address');
+  var errEl   = gid('booking-error');
+  if (!desc || !date || !time || !address) {
+    showErr(errEl, 'Please fill in all fields.'); return;
+  }
+  var w = currentWorker;
+  apiFetch('POST', '/bookings/', {
+    provider_profile_id: w.id,
+    description:         desc,
+    date:                date,
+    time:                time,
+    customer_address:    address
+  }).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) { showErr(errEl, Object.values(data).flat().join(' ') || 'Booking failed.'); return; }
+      closeModal('booking-modal');
+      refreshNotifDot();
+      alert('✅ Booking request sent to ' + w.name + '!\nYou will be notified once they confirm.');
+    });
+  });
+}
+
+function cancelBooking(bookingId) {
+  if (!confirm('Are you sure you want to cancel this booking?')) return;
+  apiFetch('POST', '/bookings/' + bookingId + '/cancel/').then(function(res) {
+    if (!res) return;
+    if (res.ok) { loadAccountPage(); }
+    else { res.json().then(function(d){ alert(d.error || 'Could not cancel booking.'); }); }
+  });
+}
+
+// =====================================================================
+// PROVIDER ACCEPT / DECLINE BOOKING
+// =====================================================================
+function acceptBooking(bookingId) {
+  apiFetch('POST', '/bookings/' + bookingId + '/accept/').then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) { alert(data.error || 'Could not accept booking.'); return; }
+      loadProvDash();
+      alert('✅ Booking accepted!\nCustomer: ' + data.customer_name +
+            '\nPhone: ' + data.customer_phone +
+            '\nAddress: ' + data.customer_address);
+    });
+  });
+}
+
+function declineBooking(bookingId) {
+  if (!confirm('Decline this booking?')) return;
+  apiFetch('POST', '/bookings/' + bookingId + '/decline/').then(function(res) {
+    if (!res) return;
+    if (res.ok) { loadProvDash(); }
+    else { res.json().then(function(d){ alert(d.error || 'Could not decline booking.'); }); }
+  });
+}
+
+function markComplete(bookingId) {
+  if (!confirm('Mark this job as completed?')) return;
+  apiFetch('POST', '/bookings/' + bookingId + '/complete/').then(function(res) {
+    if (!res) return;
+    if (res.ok) { loadProvDash(); }
+    else { res.json().then(function(d){ alert(d.error || 'Could not complete booking.'); }); }
+  });
+}
+
+// =====================================================================
+// PROVIDER DASHBOARD
+// =====================================================================
+function loadProvDash() {
+  var u = STATE.user;
+  gid('pdash-av').textContent     = makeInitials(u.name);
+  gid('pdash-name').textContent   = u.name;
+  gid('prov-av').textContent      = makeInitials(u.name);
+  gid('prov-dd-name').textContent = u.name;
+  gid('set-uname').textContent    = u.name;
+  gid('set-email').textContent    = u.email;
+
+  // Fetch profile for skill + city + availability + rating
+  apiFetch('GET', '/providers/me/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(profile) {
+      gid('pdash-info').textContent = (profile.skill || 'Service Provider') + ' · ' + (profile.city || '');
+      var chip = gid('pdash-status');
+      chip.textContent = profile.is_available ? '● Available' : '● Busy';
+      chip.className   = 'avail-chip ' + (profile.is_available ? 'avail' : 'busy');
+      provAvailable    = profile.is_available;
+      var rat = profile.rating ? parseFloat(profile.rating).toFixed(1) + ' ⭐' : '— ⭐';
+      gid('prov-stat-rat').textContent = rat;
+    });
+  });
+
+  // Fetch booking stats
+  apiFetch('GET', '/bookings/provider-stats/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(stats) {
+      gid('prov-stat-req').textContent  = stats.pending;
+      gid('prov-stat-acc').textContent  = stats.accepted;
+      gid('prov-stat-done').textContent = stats.completed;
+    });
+  });
+
+  // Fetch active requests
+  apiFetch('GET', '/bookings/requests/?tab=active').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(bookings) {
+      _renderProvRequests(bookings);
+    });
+  });
+  refreshNotifDot();
+}
+
+function _renderProvRequests(bookings) {
+  var reqList = gid('prov-requests-list');
+  if (!bookings.length) {
+    reqList.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">No service requests yet.</div>';
+    return;
+  }
+  var sorted = bookings.slice().sort(function(a,b) {
+    var order = { pending:0, accepted:1 };
+    return (order[a.status] !== undefined ? order[a.status] : 2) -
+           (order[b.status] !== undefined ? order[b.status] : 2);
+  });
+  reqList.innerHTML = sorted.map(function(b) {
+    var statusClass = b.status === 'pending' ? 'pend' : b.status === 'accepted' ? 'acc' : 'comp';
+    var statusBdg = b.status === 'pending' ? '<span class="bdg bdg-orange">Pending</span>'
+      : b.status === 'accepted' ? '<span class="bdg bdg-green">Accepted</span>'
+      : '<span class="bdg bdg-blue">Completed</span>';
+    var actions = '';
+    if (b.status === 'pending') {
+      actions = '<button class="btn btn-succ btn-sm" onclick="acceptBooking(' + b.id + ')">✓ Accept</button>'
+        + '<button class="btn btn-dang btn-sm" onclick="declineBooking(' + b.id + ')">✕ Decline</button>'
+        + '<button class="btn btn-sec btn-sm" onclick="openChatModal(\'' + htmlEsc(b.customer_name || b.customerName).replace(/\'/g,"\\'") + '\')">💬 Chat</button>';
+    } else if (b.status === 'accepted') {
+      actions = '<button class="btn btn-outl btn-sm" onclick="markComplete(' + b.id + ')">✔ Mark Complete</button>'
+        + '<button class="btn btn-sec btn-sm" onclick="openChatModal(\'' + htmlEsc(b.customer_name || b.customerName).replace(/\'/g,"\\'") + '\')">💬 Chat</button>';
+    }
+    return '<div class="req-card ' + statusClass + '">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+      + '<div><strong>' + htmlEsc(b.description) + '</strong> — ' + htmlEsc(b.customer_name || b.customerName) + '</div>'
+      + statusBdg + '</div>'
+      + '<p class="text-muted" style="margin-top:6px">📅 ' + fmtDate(b.date) + ' at ' + (b.time||'') + '</p>'
+      + (b.status === 'accepted' ? '<p class="text-muted">📍 ' + htmlEsc(b.customer_address||b.customerAddress||'') + ' &nbsp; 📞 ' + htmlEsc(b.customer_phone||b.customerPhone||'') + '</p>' : '')
+      + (actions ? '<div style="display:flex;gap:8px;margin-top:12px">' + actions + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function toggleAvailability() {
+  provAvailable = !provAvailable;
+  var chip = gid('pdash-status');
+  chip.textContent = provAvailable ? '● Available' : '● Busy';
+  chip.className   = 'avail-chip ' + (provAvailable ? 'avail' : 'busy');
+  apiFetch('POST', '/providers/me/availability/', { is_available: provAvailable });
+}
+
+// =====================================================================
+// MY ACCOUNT PAGE
+// =====================================================================
+function showAccountPage() {
+  closeAllDropdowns();
+  loadAccountPage();
+  showPage('page-account');
+}
+
+function loadAccountPage() {
+  var u = STATE.user;
+  gid('acc-avatar').textContent     = makeInitials(u.name);
+  gid('acc-name').textContent       = u.name;
+  gid('acc-email').textContent      = u.email;
+  gid('acc-role-label').textContent = STATE.role === 'customer' ? '👤 Customer' : '🔧 Service Provider';
+  if (STATE.role === 'customer') {
+    gid('tab-bookings').textContent = '📋 My Bookings';
+    gid('tab-history').textContent  = '📜 Past Bookings';
+    switchAccTab('bookings');
+  } else {
+    gid('tab-bookings').textContent = '📋 Active Requests';
+    gid('tab-history').textContent  = '📜 Service History';
+    switchAccTab('bookings');
+  }
+}
+
+function switchAccTab(tab) {
+  document.querySelectorAll('.acc-tab').forEach(function(t){ t.classList.remove('active'); });
+  gid('acc-bookings').classList.remove('hidden');
+  gid('acc-history').classList.remove('hidden');
+  if (tab === 'bookings') {
+    gid('tab-bookings').classList.add('active');
+    gid('acc-history').classList.add('hidden');
+    renderAccBookings();
+  } else {
+    gid('tab-history').classList.add('active');
+    gid('acc-bookings').classList.add('hidden');
+    renderAccHistory();
+  }
+}
+
+function renderAccBookings() {
+  var container = gid('acc-bookings');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+  var endpoint = STATE.role === 'customer' ? '/bookings/mine/?tab=active' : '/bookings/requests/?tab=active';
+  apiFetch('GET', endpoint).then(function(res) {
+    if (!res || !res.ok) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Error loading bookings.</div>'; return; }
+    res.json().then(function(list) {
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">No active bookings.</div>'; return;
+      }
+      container.innerHTML = list.map(function(b) {
+        var cls = b.status === 'pending' ? 'pending-book' : 'confirmed-book';
+        var statusBdg = b.status === 'pending'
+          ? '<span class="bdg bdg-orange">Pending</span>'
+          : '<span class="bdg bdg-green">Confirmed</span>';
+        var actions = '';
+        if (STATE.role === 'customer' && (b.status === 'pending' || b.status === 'accepted')) {
+          actions += '<button class="btn btn-dang btn-sm" onclick="cancelBooking(' + b.id + ')">✕ Cancel</button>';
+        }
+        var pName = b.provider_name || b.providerName;
+        var pSkill = b.provider_skill || b.providerSkill;
+        return '<div class="booking-card ' + cls + '">'
+          + '<div class="bk-head"><div>'
+          + '<div class="bk-title">' + htmlEsc(b.description) + '</div>'
+          + '<div class="bk-meta">🔧 ' + htmlEsc(pName) + ' · ' + htmlEsc(pSkill)
+          + ' &nbsp; 📅 ' + fmtDate(b.date) + ' at ' + (b.time||'') + '</div>'
+          + '</div>' + statusBdg + '</div>'
+          + (b.status === 'accepted' ? '<p style="font-size:13px;margin-top:6px;color:var(--green)">✅ Confirmed — Provider will arrive at the scheduled time.</p>' : '')
+          + (actions ? '<div class="bk-actions">' + actions + '</div>' : '')
+          + '</div>';
+      }).join('');
+    });
+  });
+}
+
+function renderAccHistory() {
+  var container = gid('acc-history');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading…</div>';
+  var endpoint = STATE.role === 'customer' ? '/bookings/mine/?tab=history' : '/bookings/requests/?tab=history';
+  apiFetch('GET', endpoint).then(function(res) {
+    if (!res || !res.ok) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Error loading history.</div>'; return; }
+    res.json().then(function(list) {
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">No past bookings yet.</div>'; return;
+      }
+      container.innerHTML = list.map(function(b) {
+        var cls = b.status === 'completed' ? 'completed-book' : b.status === 'cancelled' ? 'cancelled-book' : 'booking-card';
+        var statusBdg = b.status === 'completed'
+          ? '<span class="bdg bdg-blue">Completed</span>'
+          : b.status === 'cancelled'
+          ? '<span class="bdg bdg-red">Cancelled</span>'
+          : '<span class="bdg">Declined</span>';
+        var canReview = STATE.role === 'customer' && b.status === 'completed' && !b.has_review;
+        var reviewBtn = canReview
+          ? '<button class="btn btn-outl btn-sm" onclick="openFeedbackModal(' + b.id + ',' + b.provider_profile + ')">⭐ Leave Review</button>'
+          : (b.has_review ? '<span class="bdg bdg-green">✓ Reviewed</span>' : '');
+        var pName = b.provider_name || b.providerName;
+        var pSkill = b.provider_skill || b.providerSkill;
+        return '<div class="booking-card ' + cls + '">'
+          + '<div class="bk-head"><div>'
+          + '<div class="bk-title">' + htmlEsc(b.description) + '</div>'
+          + '<div class="bk-meta">🔧 ' + htmlEsc(pName) + ' · ' + htmlEsc(pSkill)
+          + ' &nbsp; 📅 ' + fmtDate(b.date) + '</div>'
+          + '</div>' + statusBdg + '</div>'
+          + (reviewBtn ? '<div class="bk-actions">' + reviewBtn + '</div>' : '')
+          + '</div>';
+      }).join('');
+    });
+  });
+}
+
+// =====================================================================
+// FEEDBACK SYSTEM
+// =====================================================================
+function openFeedbackModal(bookingId, providerId) {
+  currentFeedbackBookingId = bookingId;
+  currentFeedbackProviderId = providerId;
+  currentFeedbackRating = 0;
+  apiFetch('GET', '/bookings/' + bookingId + '/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(b) {
+      var COLORS = [['#1a56db','#3b82f6'],['#7c3aed','#a78bfa'],['#d97706','#fbbf24'],
+                    ['#059669','#34d399'],['#dc2626','#f87171'],['#0891b2','#22d3ee'],
+                    ['#7c3aed','#c084fc'],['#1a56db','#60a5fa']];
+      var cols = COLORS[(providerId - 1) % COLORS.length];
+      gid('fb-av').textContent = makeInitials(b.provider_name || b.providerName);
+      gid('fb-av').style.background = 'linear-gradient(135deg,' + cols[0] + ',' + cols[1] + ')';
+      gid('fb-name').textContent  = b.provider_name  || b.providerName;
+      gid('fb-skill').textContent = b.provider_skill || b.providerSkill;
+      gid('fb-review').value = '';
+      gid('fb-error').classList.add('hidden');
+      gid('fb-rating-val').textContent = 'Tap to rate';
+      document.querySelectorAll('.star-btn').forEach(function(b){ b.classList.remove('active'); });
+      openModal('feedback-modal');
+    });
+  });
+}
+
+function setRating(val) {
+  currentFeedbackRating = val;
+  document.querySelectorAll('.star-btn').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.getAttribute('data-val')) <= val);
+  });
+  var labels = ['','Poor','Fair','Good','Very Good','Excellent'];
+  gid('fb-rating-val').textContent = val + '/5 — ' + labels[val];
+}
+
+function submitFeedback() {
+  if (!currentFeedbackRating) { showErr(gid('fb-error'), 'Please select a rating.'); return; }
+  var body = { rating: currentFeedbackRating, comment: gval('fb-review'), booking_id: currentFeedbackBookingId };
+  apiFetch('POST', '/providers/' + currentFeedbackProviderId + '/reviews/submit/', body).then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) { showErr(gid('fb-error'), Object.values(data).flat().join(' ') || 'Submission failed.'); return; }
+      closeModal('feedback-modal');
+      loadAccountPage();
+      alert('✅ Thank you for your review!');
+    });
+  });
+}
+
+// =====================================================================
+// NOTIFICATIONS
+// =====================================================================
+function addNotification() {} // handled server-side now
+
+function refreshNotifDot() {
+  if (!STATE.user) return;
+  apiFetch('GET', '/auth/notifications/unread-count/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(data) {
+      var unread = data.unread || 0;
+      ['cust-notif-dot','prov-notif-dot'].forEach(function(id) {
+        var el = gid(id);
+        if (el) el.style.display = unread > 0 ? '' : 'none';
+      });
+    });
+  });
+}
+
+function loadNotifModal() {
+  if (!STATE.user) return;
+  var body = gid('notif-body');
+  body.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">Loading…</p>';
+  apiFetch('GET', '/auth/notifications/').then(function(res) {
+    if (!res || !res.ok) { body.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">Could not load notifications.</p>'; return; }
+    res.json().then(function(notifs) {
+      if (!notifs.length) {
+        body.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">No notifications yet.</p>'; return;
+      }
+      body.innerHTML = notifs.map(function(n) {
+        var time = n.created_at ? new Date(n.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+        return '<div class="notif-item ' + (n.type||'') + '">'
+          + '<div class="notif-title">' + htmlEsc(n.title) + '</div>'
+          + '<div class="notif-sub">'  + htmlEsc(n.sub||'')   + '</div>'
+          + (time ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + time + '</div>' : '')
+          + '</div>';
+      }).join('');
+      // Mark all read
+      apiFetch('POST', '/auth/notifications/read/');
+      refreshNotifDot();
+    });
+  });
+}
+
+// =====================================================================
+// CHAT (UI-only — real-time via WebSocket not required for basic use)
+// =====================================================================
+function openChatModal(name) {
+  gid('chat-title').textContent = '💬 Chat with ' + name;
+  gid('chat-msgs').innerHTML = '<div class="chat-msg recv"><div class="chat-bub">Hello! I\'m ' + htmlEsc(name) + '. How can I help you today?</div><div class="chat-time">Just now</div></div>';
+  closeModal('worker-modal');
+  openModal('chat-modal');
+}
+
+function sendMsg() {
+  var input = gid('chat-input');
+  var msg   = input.value.trim();
+  if (!msg) return;
+  var msgs = gid('chat-msgs');
+  msgs.innerHTML += '<div class="chat-msg sent"><div class="chat-bub">' + htmlEsc(msg) + '</div><div class="chat-time">' + nowStr() + '</div></div>';
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(function() {
+    var replies = ['I will be there shortly.','Sure, what time works for you?','Can you share your exact address?','My charges are ₹300 per hour.','Yes, I am available on that date.','Please book me through the app!'];
+    msgs.innerHTML += '<div class="chat-msg recv"><div class="chat-bub">' + replies[Math.floor(Math.random()*replies.length)] + '</div><div class="chat-time">' + nowStr() + '</div></div>';
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+
+// =====================================================================
+// ADMIN DASHBOARD
+// =====================================================================
+function loadAdminDash() {
+  apiFetch('GET', '/admin/stats/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(data) {
+      gid('stat-cu').textContent = data.total_customers;
+      gid('stat-pr').textContent = data.total_providers;
+      gid('stat-pe').textContent = data.pending_providers;
+      gid('stat-bk').textContent = data.total_bookings;
+      gid('adm-rec-body').innerHTML = (data.recent||[]).length
+        ? data.recent.map(function(r) {
+            return '<tr><td>' + htmlEsc(r.name) + '</td>'
+              + '<td><span class="bdg ' + (r.type==='Customer'?'bdg-blue':'bdg-orange') + '">' + r.type + '</span></td>'
+              + '<td>' + r.date + '</td>'
+              + '<td><span class="bdg ' + (r.status==='Active'?'bdg-green':'bdg-orange') + '">' + r.status + '</span></td></tr>';
+          }).join('')
+        : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No records yet</td></tr>';
+    });
+  });
+  _loadAdminProviders();
+  _loadAdminCustomers();
+  _loadAdminPending();
+  _loadAdminBookings();
+}
+
+function _loadAdminProviders() {
+  apiFetch('GET', '/admin/providers/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(list) {
+      gid('adm-pr-body').innerHTML = list.length
+        ? list.map(function(p) {
+            var exp = p.experience !== undefined ? p.experience : (p.exp || 0);
+            var rat = p.rating ? parseFloat(p.rating).toFixed(1) + ' ★' : 'New';
+            return '<tr><td>' + htmlEsc(p.name) + '</td><td>' + htmlEsc(p.skill) + '</td><td>' + htmlEsc(p.city) + '</td>'
+              + '<td>' + exp + ' yrs</td><td>' + rat + '</td><td><span class="bdg bdg-green">Active</span></td></tr>';
+          }).join('')
+        : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No providers yet</td></tr>';
+    });
+  });
+}
+
+function _loadAdminCustomers() {
+  apiFetch('GET', '/admin/customers/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(list) {
+      gid('adm-cu-body').innerHTML = list.length
+        ? list.map(function(c) {
+            var joined = c.date_joined ? new Date(c.date_joined).toLocaleDateString('en-IN') : 'Today';
+            return '<tr><td>' + htmlEsc(c.name) + '</td><td>' + htmlEsc(c.email) + '</td><td>' + htmlEsc(c.city||'') + '</td><td>' + joined + '</td></tr>';
+          }).join('')
+        : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No customers yet</td></tr>';
+    });
+  });
+}
+
+function _loadAdminPending() {
+  apiFetch('GET', '/admin/providers/pending/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(pending) { renderPendingList(pending); });
+  });
+}
+
+function _loadAdminBookings() {
+  apiFetch('GET', '/admin/bookings/').then(function(res) {
+    if (!res || !res.ok) return;
+    res.json().then(function(bookings) {
+      gid('adm-bk-body').innerHTML = bookings.length
+        ? bookings.map(function(b) {
+            var cls = b.status==='completed'?'bdg-blue':b.status==='accepted'?'bdg-green':b.status==='cancelled'||b.status==='declined'?'bdg-red':'bdg-orange';
+            var cName = b.customer_name || b.customerName;
+            var pName = b.provider_name || b.providerName;
+            var pSkill = b.provider_skill || b.providerSkill;
+            return '<tr><td>' + htmlEsc(cName) + '</td><td>' + htmlEsc(pName) + '</td>'
+              + '<td>' + htmlEsc(pSkill) + '</td><td>' + fmtDate(b.date) + '</td>'
+              + '<td><span class="bdg ' + cls + '">' + b.status + '</span></td></tr>';
+          }).join('')
+        : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No bookings yet</td></tr>';
+    });
+  });
+}
+
+function renderPendingList(pending) {
+  var container = gid('adm-pe-list');
+  if (!pending.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">No pending applications.</div>'; return;
+  }
+  container.innerHTML = pending.map(function(p) {
+    var exp = p.experience !== undefined ? p.experience : (p.exp || 0);
+    return '<div class="card" style="margin-bottom:14px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+      + '<div><h4 style="font-size:16px;font-weight:700;margin-bottom:4px">' + htmlEsc(p.name) + '</h4>'
+      + '<p style="color:var(--muted);font-size:13px">' + htmlEsc(p.skill) + ' · ' + htmlEsc(p.city||'') + ', ' + htmlEsc(p.state||'') + '</p>'
+      + '<p style="font-size:13px;margin-top:6px">📧 ' + htmlEsc(p.email||'') + '</p>'
+      + '<p style="font-size:13px">📅 ' + exp + ' yrs exp</p>'
+      + '<p style="font-size:13px;margin-top:6px;color:var(--muted)">' + htmlEsc(p.description||p.desc||'') + '</p>'
+      + '</div><span class="bdg bdg-orange" style="flex-shrink:0">Pending</span></div>'
+      + '<div style="display:flex;gap:10px;margin-top:14px">'
+      + '<button class="btn btn-succ btn-sm" onclick="approveProvider(' + p.id + ')">✓ Approve</button>'
+      + '<button class="btn btn-dang btn-sm" onclick="rejectProvider(' + p.id + ')">✕ Reject</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function approveProvider(id) {
+  apiFetch('POST', '/admin/providers/' + id + '/approve/').then(function(res) {
+    if (!res) return;
+    res.json().then(function(data) {
+      if (!res.ok) { alert(data.error || 'Could not approve provider.'); return; }
+      loadAdminDash();
+      adminNav('pe');
+      alert('✅ ' + data.message);
+    });
+  });
+}
+
+function rejectProvider(id) {
+  if (!confirm('Are you sure you want to reject this application?')) return;
+  apiFetch('POST', '/admin/providers/' + id + '/reject/').then(function(res) {
+    if (!res) return;
+    if (res.ok) { loadAdminDash(); adminNav('pe'); }
+    else { res.json().then(function(d){ alert(d.error || 'Could not reject provider.'); }); }
+  });
+}
+
+function adminNav(section) {
+  ['ov','pr','cu','pe','bk'].forEach(function(s) {
+    gid('adm-' + s).classList.add('hidden');
+    var btn = gid('sb-' + s);
+    if (btn) btn.classList.remove('active');
+  });
+  gid('adm-' + section).classList.remove('hidden');
+  var activeBtn = gid('sb-' + section);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+// =====================================================================
+// MODALS / DROPDOWNS (unchanged)
+// =====================================================================
+function openModal(id) {
+  var el = gid(id);
+  if (el) { el.classList.add('open'); document.body.style.overflow = 'hidden';
+    if (id === 'notif-modal') loadNotifModal(); }
+}
+function closeModal(id) {
+  var el = gid(id);
+  if (el) { el.classList.remove('open'); document.body.style.overflow = ''; }
+}
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-ov')) closeModal(e.target.id);
+});
+
+function toggleDD(id) {
+  var dd = gid(id);
+  if (!dd) return;
+  var wasOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if (!wasOpen) dd.classList.add('open');
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.dd-menu.open').forEach(function(d){ d.classList.remove('open'); });
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) closeAllDropdowns();
+});
+
+// =====================================================================
+// SETTINGS
+// =====================================================================
+function openSettings() {
+  closeAllDropdowns();
+  var active = document.querySelector('.page.active');
+  STATE.returnPage = active ? active.id : 'page-landing';
+  if (STATE.user) {
+    var u = STATE.user;
+    gid('set-address').textContent = [u.area, u.city, u.state].filter(Boolean).join(', ') || '—';
+    gid('set-phone').textContent   = u.phone || '—';
+    if (gid('upd-area'))      gid('upd-area').value      = u.area  || '';
+    if (gid('upd-city'))      gid('upd-city').value      = u.city  || '';
+    if (gid('upd-state'))     gid('upd-state').value     = u.state || '';
+    if (gid('upd-phone'))     gid('upd-phone').value     = u.phone || '';
+    if (gid('upd-email-val')) gid('upd-email-val').value = u.email || '';
+  }
+  showPage('page-settings');
+}
+
+function saveAddress() {
+  var area  = gval('upd-area');
+  var city  = gval('upd-city');
+  var state = gid('upd-state').value;
+  if (!city) { alert('Please enter at least a city.'); return; }
+  apiFetch('PATCH', '/auth/profile/', { area: area, city: city, state: state }).then(function(res) {
+    if (!res || !res.ok) { alert('Could not update address.'); return; }
+    res.json().then(function(data) {
+      STATE.user.area  = area;
+      STATE.user.city  = city;
+      STATE.user.state = state;
+      gid('set-address').textContent = [area, city, state].filter(Boolean).join(', ');
+      var ok = gid('upd-addr-ok');
+      ok.textContent = '✅ Address updated successfully!';
+      ok.classList.remove('hidden');
+      setTimeout(function() { ok.classList.add('hidden'); closeModal('update-address-modal'); }, 1600);
+    });
+  });
+}
+
+function saveContact() {
+  var phone = gval('upd-phone');
+  var email = gval('upd-email-val').toLowerCase();
+  if (!phone && !email) { alert('Please enter a phone number or email.'); return; }
+  var body = {};
+  if (phone) body.phone = phone;
+  apiFetch('PATCH', '/auth/profile/', body).then(function(res) {
+    if (!res || !res.ok) { alert('Could not update contact.'); return; }
+    if (phone) { STATE.user.phone = phone; gid('set-phone').textContent = phone; }
+    if (email) { STATE.user.email = email; gid('set-email').textContent = email; }
+    var ok = gid('upd-contact-ok');
+    ok.textContent = '✅ Contact updated successfully!';
+    ok.classList.remove('hidden');
+    setTimeout(function() { ok.classList.add('hidden'); closeModal('update-contact-modal'); }, 1600);
+  });
+}
+
+function closeSettings() { showPage(STATE.returnPage || 'page-landing'); }
+
+// =====================================================================
+// DARK MODE
+// =====================================================================
+function toggleTheme() {
+  STATE.dark = !STATE.dark;
+  document.documentElement.setAttribute('data-theme', STATE.dark ? 'dark' : '');
+  var tog = gid('dm-toggle');
+  if (tog) tog.classList.toggle('on', STATE.dark);
+  ['theme-btn','prov-theme-btn'].forEach(function(id){
+    var b = gid(id);
+    if (b) b.textContent = STATE.dark ? '☀️' : '🌙';
+  });
+  try { localStorage.setItem('he_theme', STATE.dark ? 'dark' : 'light'); } catch(e) {}
+}
+
+// =====================================================================
+// LOGOUT
+// =====================================================================
+function logout() {
+  var rt = Auth.getRefresh();
+  if (rt) { apiFetch('POST', '/auth/logout/', { refresh: rt }).catch(function(){}); }
+  Auth.clear();
+  STATE.user = null;
+  STATE.role = null;
+  _providerCache = [];
+  closeAllDropdowns();
+  showPage('page-landing');
+}
+
+// =====================================================================
+// AUTO-LOGIN — restore session from stored JWT on page reload
+// =====================================================================
+async function tryAutoLogin() {
+  if (!Auth.getAccess()) return false;
+  var res = await apiFetch('GET', '/auth/profile/');
+  if (!res || !res.ok) { Auth.clear(); return false; }
+  STATE.user = await res.json();
+  STATE.role = STATE.user.role;
+  return true;
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+window.addEventListener('load', async function() {
+  try {
+    if (localStorage.getItem('he_theme') === 'dark') {
+      STATE.dark = true;
+      document.documentElement.setAttribute('data-theme','dark');
+      var tog = gid('dm-toggle');
+      if (tog) tog.classList.add('on');
+    }
+  } catch(e) {}
+  var today = new Date().toISOString().split('T')[0];
+  var bkDate = gid('bk-date');
+  if (bkDate) bkDate.min = today;
+
+  // Auto-restore session
+  var loggedIn = await tryAutoLogin();
+  if (loggedIn) {
+    if (STATE.role === 'customer')  { await loadCustHome();    showPage('page-cust-home'); }
+    else if (STATE.role === 'provider') { loadProvDash();      showPage('page-prov-dash'); }
+    else if (STATE.role === 'admin')    { loadAdminDash();     showPage('page-admin-dash'); }
+  }
+});
+</script>
+</body>
+</html>
